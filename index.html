@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flashcard Study Site</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6fb;
+    text-align:center;
+    padding:40px;
+}
+
+h1{
+    color:#333;
+}
+
+.card{
+    width:320px;
+    margin:40px auto;
+    padding:30px;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.15);
+    font-size:20px;
+    cursor:pointer;
+}
+
+button{
+    padding:10px 18px;
+    margin:10px;
+    border:none;
+    border-radius:6px;
+    background:#4a6cff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#364fc7;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Flashcard Study</h1>
+
+<div class="card" onclick="flipCard()" id="card">
+Click to start
+</div>
+
+<button onclick="nextCard()">Next Card</button>
+
+<script>
+
+let flashcards = [
+    {term:"Example Term", definition:"Example Definition"},
+    {term:"Second Term", definition:"Second Definition"}
+]
+
+let current = 0
+let flipped = false
+
+function showCard(){
+    document.getElementById("card").innerText = flashcards[current].term
+    flipped = false
+}
+
+function flipCard(){
+
+    if(!flipped){
+        document.getElementById("card").innerText = flashcards[current].definition
+        flipped = true
+    } else {
+        showCard()
+    }
+
+}
+
+function nextCard(){
+
+    current++
+
+    if(current >= flashcards.length){
+        current = 0
+    }
+
+    showCard()
+
+}
+
+showCard()
+
+</script>
+
+</body>
+</html>
