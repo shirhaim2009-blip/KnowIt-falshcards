@@ -2,10 +2,203 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Flashcard Study Site</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcard Study</title>
+
+<style>
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start; 
+    padding: 40px 20px;
+    min-height: 100vh; 
+    margin: 0; 
+    box-sizing: border-box;
+}
+
+.page-wrapper { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 40px; 
+    width: 100%; 
+    max-width: 700px; 
+}
+
+h2 {
+    color: white;
+    text-align: center;
+    margin: 0;
+}
+
+.container { 
+    background: white; 
+    padding: 2rem; 
+    border-radius: 15px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+.flashcard {
+    background: #f9f9f9;
+    padding: 40px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    text-align: center;
+    font-size: 24px;
+    cursor: pointer;
+    user-select: none;
+    min-height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s;
+    position: relative;
+}
+
+.flashcard.correct { border-left: 6px solid #4caf50; }
+.flashcard.incorrect { border-left: 6px solid #f44336; }
+
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #5471c0;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button:hover { opacity: 0.9; }
+
+textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+
+/* Print flashcards placeholder */
+#printBtn {
+    margin-top: 20px;
+    width: 100%;
+    background-color: #764ba2;
+}
+
+/* Simple dotted line preview for print */
+.print-card {
+    border: 1px dashed #999;
+    padding: 20px;
+    margin: 10px 0;
+}
+</style>
 </head>
 <body>
-<h1>My Flashcard Site</h1>
-<p>Hello! This is your test site.</p>
+
+<div class="page-wrapper">
+
+    <!-- Flashcard Viewer -->
+    <div class="container">
+        <h2>Flashcards</h2>
+        <div class="flashcard" id="flashcard">Click to flip</div>
+        <div class="button-row">
+            <button id="prevBtn">← Previous</button>
+            <button id="correctBtn">✔ Correct</button>
+            <button id="incorrectBtn">✖ Incorrect</button>
+            <button id="nextBtn">Next →</button>
+        </div>
+    </div>
+
+    <!-- Term Input Section -->
+    <div class="container">
+        <h2>Write Something About This Term</h2>
+        <div id="currentTerm" style="font-weight:bold; font-size:20px; margin-bottom:10px;">Term appears here</div>
+        <textarea placeholder="Type your answer here..."></textarea>
+    </div>
+
+    <!-- Print Flashcards Placeholder -->
+    <div class="container">
+        <h2>Print Flashcards</h2>
+        <button id="printBtn">Print Flashcards</button>
+        <div class="print-preview">
+            <div class="print-card">Term 1</div>
+            <div class="print-card">Term 2</div>
+            <div class="print-card">Term 3</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Sample flashcards
+let flashcards = [
+    {term: "Lusitania", definition: "British ship sunk by German U-boat"},
+    {term: "Zimmermann Note", definition: "German telegram to Mexico"},
+    {term: "Treaty of Versailles", definition: "Ended World War I"}
+];
+
+let current = 0;
+let flipped = false;
+
+const flashcardDiv = document.getElementById("flashcard");
+const currentTermDiv = document.getElementById("currentTerm");
+
+function showCard() {
+    flashcardDiv.innerText = flipped ? flashcards[current].definition : flashcards[current].term;
+    currentTermDiv.innerText = flashcards[current].term;
+}
+
+flashcardDiv.addEventListener("click", () => {
+    flipped = !flipped;
+    showCard();
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+    current = (current + 1) % flashcards.length;
+    flipped = false;
+    flashcardDiv.classList.remove("correct", "incorrect");
+    showCard();
+});
+
+document.getElementById("prevBtn").addEventListener("click", () => {
+    current = (current - 1 + flashcards.length) % flashcards.length;
+    flipped = false;
+    flashcardDiv.classList.remove("correct", "incorrect");
+    showCard();
+});
+
+document.getElementById("correctBtn").addEventListener("click", () => {
+    flashcardDiv.classList.add("correct");
+    flashcardDiv.classList.remove("incorrect");
+});
+
+document.getElementById("incorrectBtn").addEventListener("click", () => {
+    flashcardDiv.classList.add("incorrect");
+    flashcardDiv.classList.remove("correct");
+});
+
+// Placeholder for Print button
+document.getElementById("printBtn").addEventListener("click", () => {
+    alert("Print functionality coming soon!");
+});
+
+// Initialize
+showCard();
+</script>
+
 </body>
 </html>
