@@ -12,7 +12,7 @@ body {
     display: flex; 
     justify-content: center; 
     align-items: flex-start; 
-    padding: 40px 20px;
+    padding: 50px 20px;
     min-height: 100vh; 
     margin: 0; 
     box-sizing: border-box;
@@ -22,48 +22,53 @@ body {
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    gap: 40px; 
+    gap: 50px; 
     width: 100%; 
     max-width: 700px; 
 }
 
 h2 {
-    color: #333; /* titles now readable */
+    color: #333; 
     text-align: center;
-    margin: 0;
+    margin-bottom: 30px; /* more space after titles */
 }
 
 .container { 
     background: white; 
     padding: 2rem; 
-    border-radius: 15px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+    border-radius: 18px; 
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25); 
     width: 100%; 
     box-sizing: border-box; 
 }
 
+.flashcard-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px; /* more space between card and buttons */
+}
+
 .flashcard {
     background: #f9f9f9;
-    width: 250px; /* square */
-    height: 250px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    width: 300px; 
+    height: 300px; 
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     text-align: center;
-    font-size: 24px;
+    font-size: 26px;
     cursor: pointer;
     user-select: none;
     display: flex;
     justify-content: center;
     align-items: center;
-    perspective: 1000px; /* for 3D flip */
-    margin-bottom: 20px; /* spacing from buttons */
+    perspective: 1000px; 
 }
 
 .flashcard-inner {
     width: 100%;
     height: 100%;
     text-align: center;
-    transition: transform 0.6s;
+    transition: transform 0.6s ease;
     transform-style: preserve-3d;
     position: relative;
 }
@@ -80,7 +85,9 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 12px;
+    border-radius: 14px;
+    padding: 15px;
+    box-sizing: border-box;
 }
 
 .flashcard-back {
@@ -92,43 +99,58 @@ h2 {
 
 .button-row {
     display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
+    justify-content: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    margin-top: 10px;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 10px 18px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     background-color: #5471c0;
     color: white;
     cursor: pointer;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
-button:hover { opacity: 0.9; }
+button:hover {
+    transform: translateY(-2px);
+    background-color: #405aa0;
+}
 
 textarea {
     width: 100%;
     height: 80px;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 10px;
     border: 1px solid #ddd;
     font-size: 16px;
     box-sizing: border-box;
     margin-top: 10px;
+    resize: vertical;
 }
 
 #responseArea {
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 12px;
+    padding: 12px;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 10px;
     min-height: 60px;
     background: #f4f4f4;
+}
+
+#submitInputBtn {
+    margin-top: 10px;
+    width: 100%;
+    background-color: #764ba2;
+}
+
+#submitInputBtn:hover {
+    background-color: #5b358c;
 }
 </style>
 </head>
@@ -139,10 +161,12 @@ textarea {
     <!-- Flashcard Viewer -->
     <div class="container">
         <h2>Flashcards</h2>
-        <div class="flashcard" id="flashcard">
-            <div class="flashcard-inner">
-                <div class="flashcard-front" id="cardFront">Click to flip</div>
-                <div class="flashcard-back" id="cardBack">Definition</div>
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front" id="cardFront">Click to flip</div>
+                    <div class="flashcard-back" id="cardBack">Definition</div>
+                </div>
             </div>
         </div>
         <div class="button-row">
@@ -162,7 +186,7 @@ textarea {
             <button id="inputPrevBtn">← Previous Term</button>
             <button id="inputNextBtn">Next Term →</button>
         </div>
-        <div id="currentTerm" style="font-weight:bold; font-size:20px; margin-top:10px;">Term appears here</div>
+        <div id="currentTerm" style="font-weight:bold; font-size:22px; margin-top:15px;">Term appears here</div>
         <textarea id="userInput" placeholder="Type your answer here..."></textarea>
         <button id="submitInputBtn">Submit Answer</button>
         <div id="responseArea">Response from OpenAI will appear here.</div>
@@ -262,7 +286,6 @@ function updateInputTerm(){
 
 document.getElementById("submitInputBtn").addEventListener("click", () => {
     const userText = document.getElementById("userInput").value;
-    // Placeholder: here you can send to OpenAI later
     document.getElementById("responseArea").innerText = "Submitted: " + userText + " (OpenAI response placeholder)";
     document.getElementById("userInput").value = "";
 });
