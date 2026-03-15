@@ -30,7 +30,7 @@ body {
 h2 {
     color: #333; 
     text-align: center;
-    margin-bottom: 30px; /* more space after titles */
+    margin-bottom: 15px; 
 }
 
 .container { 
@@ -45,13 +45,14 @@ h2 {
 .flashcard-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 25px; /* more space between card and buttons */
+    margin-bottom: 25px; 
 }
 
 .flashcard {
     background: #f9f9f9;
-    width: 300px; 
-    height: 300px; 
+    width: 100%; /* full width to match buttons */
+    max-width: 600px;
+    height: 200px; /* rectangular */
     border-radius: 14px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     text-align: center;
@@ -152,15 +153,20 @@ textarea {
 #submitInputBtn:hover {
     background-color: #5b358c;
 }
+
+.feature-explanation {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+}
 </style>
 </head>
 <body>
 
 <div class="page-wrapper">
 
-    <!-- Flashcard Viewer -->
+    <!-- Flashcard Viewer (no title now) -->
     <div class="container">
-        <h2>Flashcards</h2>
         <div class="flashcard-container">
             <div class="flashcard" id="flashcard">
                 <div class="flashcard-inner">
@@ -170,9 +176,10 @@ textarea {
             </div>
         </div>
         <div class="button-row">
+            <!-- switched incorrect/correct -->
             <button id="prevBtn">← Previous</button>
-            <button id="correctBtn">✔ Correct</button>
             <button id="incorrectBtn">✖ Incorrect</button>
+            <button id="correctBtn">✔ Correct</button>
             <button id="nextBtn">Next →</button>
             <button id="reviewWrongBtn">Review Wrong</button>
             <button id="resetBtn">Reset Set</button>
@@ -181,7 +188,10 @@ textarea {
 
     <!-- Term Input Section -->
     <div class="container">
-        <h2>Submit Your Answer</h2>
+        <h2>Test Your Knowledge</h2>
+        <div class="feature-explanation">
+            Enter your explanation for the term below and submit it to receive feedback.
+        </div>
         <div class="button-row">
             <button id="inputPrevBtn">← Previous Term</button>
             <button id="inputNextBtn">Next Term →</button>
@@ -278,22 +288,4 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 // User Input section
 let inputIndex = 0;
 document.getElementById("inputPrevBtn").addEventListener("click", ()=>{inputIndex=(inputIndex-1+flashcards.length)%flashcards.length; updateInputTerm();});
-document.getElementById("inputNextBtn").addEventListener("click", ()=>{inputIndex=(inputIndex+1)%flashcards.length; updateInputTerm();});
-
-function updateInputTerm(){
-    currentTermDiv.innerText = flashcards[inputIndex].term;
-}
-
-document.getElementById("submitInputBtn").addEventListener("click", () => {
-    const userText = document.getElementById("userInput").value;
-    document.getElementById("responseArea").innerText = "Submitted: " + userText + " (OpenAI response placeholder)";
-    document.getElementById("userInput").value = "";
-});
-
-// Initialize
-showCard();
-updateInputTerm();
-</script>
-
-</body>
-</html>
+document
