@@ -37,6 +37,17 @@ margin-bottom:10px;
 display:none;
 }
 
+/* progress tracker */
+
+#progress{
+text-align:center;
+margin-bottom:15px;
+font-size:15px;
+color:#555;
+}
+
+/* flashcard */
+
 .flashcard{
 width:100%;
 height:260px;
@@ -175,16 +186,13 @@ margin-top:20px;
 
 <div id="reviewIndicator">Reviewing Incorrect Cards</div>
 
+<div id="progress"></div>
+
 <div class="flashcard" id="flashcard">
 <div class="flashcard-inner">
 
-<div class="flashcard-front" id="front">
-Lusitania
-</div>
-
-<div class="flashcard-back" id="back">
-British passenger ship sunk by a German U-boat in 1915.
-</div>
+<div class="flashcard-front" id="front"></div>
+<div class="flashcard-back" id="back"></div>
 
 </div>
 </div>
@@ -209,7 +217,7 @@ British passenger ship sunk by a German U-boat in 1915.
 Explain the term in your own words and submit it for feedback.
 </div>
 
-<div id="termPrompt">Lusitania</div>
+<div id="termPrompt"></div>
 
 <textarea id="answer" placeholder="Write your explanation here..."></textarea>
 
@@ -246,44 +254,62 @@ Double-Sided Layout Preview
 <script>
 
 let cards=[
-{term:"Lusitania",def:"British passenger ship sunk by a German U-boat in 1915."},
-{term:"Zimmermann Note",def:"German proposal asking Mexico to join WWI against the U.S."},
-{term:"Treaty of Versailles",def:"1919 treaty that officially ended World War I."}
+{term:"Lusitania",def:"British passenger ship sunk by a German U-boat in 1915.",status:null},
+{term:"Zimmermann Note",def:"German proposal asking Mexico to join WWI against the U.S.",status:null},
+{term:"Treaty of Versailles",def:"1919 treaty that officially ended World War I.",status:null}
 ];
 
 let current=0;
-
-let correctCards=[];
-let wrongCards=[];
 let reviewMode=false;
 
 const flashcard=document.getElementById("flashcard");
 const front=document.getElementById("front");
 const back=document.getElementById("back");
 const prompt=document.getElementById("termPrompt");
+const progress=document.getElementById("progress");
+
+/* progress tracker */
+
+function updateProgress(){
+
+let correct=cards.filter(c=>c.status==="correct").length;
+let incorrect=cards.filter(c=>c.status==="incorrect").length;
+
+progress.innerText=
+`Card ${current+1} / ${cards.length}   |   ✔ ${correct}   ✖ ${incorrect}`;
+
+}
+
+/* show card */
 
 function show(){
 
-front.innerText=cards[current].term;
-back.innerText=cards[current].def;
-prompt.innerText=cards[current].term;
+let card=cards[current];
 
-/* reset visual state when switching cards */
-flashcard.classList.remove("flipped");
-flashcard.classList.remove("correct");
-flashcard.classList.remove("incorrect");
+front.innerText=card.term;
+back.innerText=card.def;
+prompt.innerText=card.term;
+
+flashcard.classList.remove("flipped","correct","incorrect");
+
+if(card.status==="correct") flashcard.classList.add("correct");
+if(card.status==="incorrect") flashcard.classList.add("incorrect");
+
+updateProgress();
 
 }
 
 flashcard.onclick=()=>flashcard.classList.toggle("flipped");
 
+/* navigation */
+
 document.getElementById("next").onclick=()=>{
 
 if(reviewMode){
 
-let i=wrongCards.indexOf(current);
-i=(i+1)%wrongCards.length;
-current=wrongCards[i];
+let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
+let i=wrongIndexes.indexOf(current);
+current=wrongIndexes[(i+1)%wrongIndexes.length];
 
 }else{
 
@@ -299,9 +325,9 @@ document.getElementById("prev").onclick=()=>{
 
 if(reviewMode){
 
-let i=wrongCards.indexOf(current);
-i=(i-1+wrongCards.length)%wrongCards.length;
-current=wrongCards[i];
+let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
+let i=wrongIndexes.indexOf(current);
+current=wrongIndexes[(i-1+wrongIndexes.length)%wrongIndexes.length];
 
 }else{
 
@@ -313,41 +339,37 @@ show();
 
 };
 
+/* mark correct */
+
 document.getElementById("correct").onclick=()=>{
 
-flashcard.classList.add("correct");
-flashcard.classList.remove("incorrect");
-
-if(!correctCards.includes(current))
-correctCards.push(current);
-
-wrongCards=wrongCards.filter(i=>i!==current);
+cards[current].status="correct";
+show();
 
 };
+
+/* mark incorrect */
 
 document.getElementById("incorrect").onclick=()=>{
 
-flashcard.classList.add("incorrect");
-flashcard.classList.remove("correct");
-
-if(!wrongCards.includes(current))
-wrongCards.push(current);
-
-correctCards=correctCards.filter(i=>i!==current);
+cards[current].status="incorrect";
+show();
 
 };
 
+/* review wrong */
+
 document.getElementById("review").onclick=()=>{
 
-if(wrongCards.length===0){
+let wrong=cards.findIndex(c=>c.status==="incorrect");
 
+if(wrong===-1){
 alert("No incorrect cards yet!");
 return;
-
 }
 
 reviewMode=true;
-current=wrongCards[0];
+current=wrong;
 
 document.getElementById("reviewIndicator").style.display="block";
 
@@ -355,18 +377,14 @@ show();
 
 };
 
+/* reset */
+
 document.getElementById("reset").onclick=()=>{
 
-correctCards=[];
-wrongCards=[];
+cards.forEach(c=>c.status=null);
+
 reviewMode=false;
-
 current=0;
-
-/* remove all visual states */
-flashcard.classList.remove("correct");
-flashcard.classList.remove("incorrect");
-flashcard.classList.remove("flipped");
 
 document.getElementById("reviewIndicator").style.display="none";
 
