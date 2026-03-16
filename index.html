@@ -184,6 +184,11 @@ margin-top:20px;
 
 <div class="container">
 
+<!-- Toggle Mode Button -->
+<div class="buttonRow" style="justify-content:flex-end;margin-bottom:10px;">
+    <button id="toggleMode">Mode: Term → Definition</button>
+</div>
+
 <div id="reviewIndicator">Reviewing Incorrect Cards</div>
 
 <div id="progress"></div>
@@ -261,6 +266,7 @@ let cards=[
 
 let current=0;
 let reviewMode=false;
+let studyMode="term"; // "term"=Term→Definition, "def"=Definition→Term
 
 const flashcard=document.getElementById("flashcard");
 const front=document.getElementById("front");
@@ -271,162 +277,128 @@ const progress=document.getElementById("progress");
 /* progress tracker */
 
 function updateProgress(){
-
-let correct=cards.filter(c=>c.status==="correct").length;
-let incorrect=cards.filter(c=>c.status==="incorrect").length;
-
-progress.innerText=
-`Card ${current+1} / ${cards.length}   |   ✔ ${correct}   ✖ ${incorrect}`;
-
+    let correct=cards.filter(c=>c.status==="correct").length;
+    let incorrect=cards.filter(c=>c.status==="incorrect").length;
+    progress.innerText=`Card ${current+1} / ${cards.length}   |   ✔ ${correct}   ✖ ${incorrect}`;
 }
 
 /* show card */
 
 function show(){
+    let card=cards[current];
 
-let card=cards[current];
+    if(studyMode==="term"){
+        front.innerText=card.term;
+        back.innerText=card.def;
+    }else{
+        front.innerText=card.def;
+        back.innerText=card.term;
+    }
 
-front.innerText=card.term;
-back.innerText=card.def;
-prompt.innerText=card.term;
+    prompt.innerText=card.term;
 
-flashcard.classList.remove("flipped","correct","incorrect");
+    flashcard.classList.remove("flipped","correct","incorrect");
 
-if(card.status==="correct") flashcard.classList.add("correct");
-if(card.status==="incorrect") flashcard.classList.add("incorrect");
+    if(card.status==="correct") flashcard.classList.add("correct");
+    if(card.status==="incorrect") flashcard.classList.add("incorrect");
 
-updateProgress();
-
+    updateProgress();
 }
+
+/* flip */
 
 flashcard.onclick=()=>flashcard.classList.toggle("flipped");
 
 /* navigation */
 
 document.getElementById("next").onclick=()=>{
-
-if(reviewMode){
-
-let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
-let i=wrongIndexes.indexOf(current);
-current=wrongIndexes[(i+1)%wrongIndexes.length];
-
-}else{
-
-current=(current+1)%cards.length;
-
-}
-
-show();
-
+    if(reviewMode){
+        let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
+        let i=wrongIndexes.indexOf(current);
+        current=wrongIndexes[(i+1)%wrongIndexes.length];
+    }else{
+        current=(current+1)%cards.length;
+    }
+    show();
 };
 
 document.getElementById("prev").onclick=()=>{
-
-if(reviewMode){
-
-let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
-let i=wrongIndexes.indexOf(current);
-current=wrongIndexes[(i-1+wrongIndexes.length)%wrongIndexes.length];
-
-}else{
-
-current=(current-1+cards.length)%cards.length;
-
-}
-
-show();
-
+    if(reviewMode){
+        let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
+        let i=wrongIndexes.indexOf(current);
+        current=wrongIndexes[(i-1+wrongIndexes.length)%wrongIndexes.length];
+    }else{
+        current=(current-1+cards.length)%cards.length;
+    }
+    show();
 };
 
 /* mark correct */
 
 document.getElementById("correct").onclick=()=>{
-
-cards[current].status="correct";
-show();
-
+    cards[current].status="correct";
+    show();
 };
 
 /* mark incorrect */
 
 document.getElementById("incorrect").onclick=()=>{
-
-cards[current].status="incorrect";
-show();
-
+    cards[current].status="incorrect";
+    show();
 };
 
 /* review wrong */
 
 document.getElementById("review").onclick=()=>{
-
-let wrong=cards.findIndex(c=>c.status==="incorrect");
-
-if(wrong===-1){
-alert("No incorrect cards yet!");
-return;
-}
-
-reviewMode=true;
-current=wrong;
-
-document.getElementById("reviewIndicator").style.display="block";
-
-show();
-
+    let wrong=cards.findIndex(c=>c.status==="incorrect");
+    if(wrong===-1){
+        alert("No incorrect cards yet!");
+        return;
+    }
+    reviewMode=true;
+    current=wrong;
+    document.getElementById("reviewIndicator").style.display="block";
+    show();
 };
 
 /* reset */
 
 document.getElementById("reset").onclick=()=>{
-
-cards.forEach(c=>c.status=null);
-
-reviewMode=false;
-current=0;
-
-document.getElementById("reviewIndicator").style.display="none";
-
-show();
-
+    cards.forEach(c=>c.status=null);
+    reviewMode=false;
+    current=0;
+    document.getElementById("reviewIndicator").style.display="none";
+    show();
 };
+
+/* knowledge test navigation */
 
 let knowledgeIndex=0;
-
 document.getElementById("nextTerm").onclick=()=>{
-
-knowledgeIndex=(knowledgeIndex+1)%cards.length;
-prompt.innerText=cards[knowledgeIndex].term;
-
+    knowledgeIndex=(knowledgeIndex+1)%cards.length;
+    prompt.innerText=cards[knowledgeIndex].term;
 };
-
 document.getElementById("prevTerm").onclick=()=>{
-
-knowledgeIndex=(knowledgeIndex-1+cards.length)%cards.length;
-prompt.innerText=cards[knowledgeIndex].term;
-
+    knowledgeIndex=(knowledgeIndex-1+cards.length)%cards.length;
+    prompt.innerText=cards[knowledgeIndex].term;
 };
+
+/* toggle study mode */
+
+document.getElementById("toggleMode").onclick=()=>{
+    studyMode = (studyMode==="term") ? "def" : "term";
+    document.getElementById("toggleMode").innerText = 
+        (studyMode==="term") ? "Mode: Term → Definition" : "Mode: Definition → Term";
+    show();
+};
+
+/* PDF preview buttons */
 
 const preview=document.getElementById("preview");
 
-document.getElementById("double").onclick=()=>{
-
-preview.innerText="Double-Sided Layout Preview";
-
-};
-
-document.getElementById("single").onclick=()=>{
-
-preview.innerText="One-Sided Layout Preview";
-
-};
-
-document.getElementById("save").onclick=()=>{
-
-alert("PDF export coming next.");
-
-};
+document.getElementById("double").onclick=()=>{ preview.innerText="Double-Sided Layout Preview"; };
+document.getElementById("single").onclick=()=>{ preview.innerText="One-Sided Layout Preview"; };
+document.getElementById("save").onclick=()=>{ alert("PDF export coming next."); };
 
 show();
 
