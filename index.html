@@ -29,6 +29,16 @@ border-radius:18px;
 box-shadow:0 12px 30px rgba(0,0,0,.25);
 }
 
+/* Review indicator */
+
+#reviewIndicator{
+text-align:center;
+color:#c0392b;
+font-weight:bold;
+margin-bottom:10px;
+display:none;
+}
+
 /* Flashcard */
 
 .flashcard{
@@ -40,7 +50,6 @@ box-shadow:0 10px 25px rgba(0,0,0,.2);
 display:flex;
 justify-content:center;
 align-items:center;
-font-size:28px;
 cursor:pointer;
 perspective:1000px;
 margin-bottom:30px;
@@ -61,13 +70,20 @@ transform:rotateY(180deg);
 .flashcard-front,
 .flashcard-back{
 position:absolute;
+top:0;
+left:0;
 width:100%;
 height:100%;
+
 display:flex;
-align-items:center;
 justify-content:center;
+align-items:center;
+
 text-align:center;
-padding:20px;
+font-size:28px;
+padding:30px;
+box-sizing:border-box;
+
 backface-visibility:hidden;
 }
 
@@ -172,6 +188,8 @@ margin-top:20px;
 
 <div class="container">
 
+<div id="reviewIndicator">Reviewing Incorrect Cards</div>
+
 <div class="flashcard" id="flashcard">
 <div class="flashcard-inner">
 
@@ -210,7 +228,7 @@ Explain the term in your own words and submit it for feedback.
 
 <div id="termPrompt">Lusitania</div>
 
-<textarea placeholder="Write your explanation here..." id="answer"></textarea>
+<textarea id="answer" placeholder="Write your explanation here..."></textarea>
 
 <div class="buttonRow" style="margin-top:14px;">
 <button id="prevTerm">← Previous Term</button>
@@ -226,7 +244,7 @@ Response from OpenAI will appear here.
 </div>
 
 
-<!-- PDF Section -->
+<!-- PDF Generator -->
 
 <div class="container">
 
@@ -254,6 +272,10 @@ let cards=[
 
 let current=0;
 
+let correctCards=[];
+let wrongCards=[];
+let reviewMode=false;
+
 const flashcard=document.getElementById("flashcard");
 const front=document.getElementById("front");
 const back=document.getElementById("back");
@@ -262,10 +284,14 @@ const prompt=document.getElementById("termPrompt");
 /* show card */
 
 function show(){
+
 front.innerText=cards[current].term;
 back.innerText=cards[current].def;
+
 prompt.innerText=cards[current].term;
+
 flashcard.classList.remove("flipped");
+
 }
 
 /* flip */
@@ -275,31 +301,103 @@ flashcard.onclick=()=>flashcard.classList.toggle("flipped");
 /* navigation */
 
 document.getElementById("next").onclick=()=>{
+
+if(reviewMode){
+
+let i=wrongCards.indexOf(current);
+i=(i+1)%wrongCards.length;
+current=wrongCards[i];
+
+}else{
+
 current=(current+1)%cards.length;
+
+}
+
 show();
+
 };
 
 document.getElementById("prev").onclick=()=>{
+
+if(reviewMode){
+
+let i=wrongCards.indexOf(current);
+i=(i-1+wrongCards.length)%wrongCards.length;
+current=wrongCards[i];
+
+}else{
+
 current=(current-1+cards.length)%cards.length;
+
+}
+
 show();
+
 };
 
-/* correct incorrect */
+/* mark correct */
 
 document.getElementById("correct").onclick=()=>{
-flashcard.classList.remove("incorrect");
+
 flashcard.classList.add("correct");
+flashcard.classList.remove("incorrect");
+
+if(!correctCards.includes(current))
+correctCards.push(current);
+
+wrongCards=wrongCards.filter(i=>i!==current);
+
 };
 
+/* mark incorrect */
+
 document.getElementById("incorrect").onclick=()=>{
-flashcard.classList.remove("correct");
+
 flashcard.classList.add("incorrect");
+flashcard.classList.remove("correct");
+
+if(!wrongCards.includes(current))
+wrongCards.push(current);
+
+correctCards=correctCards.filter(i=>i!==current);
+
+};
+
+/* review wrong */
+
+document.getElementById("review").onclick=()=>{
+
+if(wrongCards.length===0){
+
+alert("No incorrect cards yet!");
+return;
+
+}
+
+reviewMode=true;
+current=wrongCards[0];
+
+document.getElementById("reviewIndicator").style.display="block";
+
+show();
+
 };
 
 /* reset */
 
 document.getElementById("reset").onclick=()=>{
-flashcard.classList.remove("correct","incorrect");
+
+correctCards=[];
+wrongCards=[];
+reviewMode=false;
+
+current=0;
+
+document.getElementById("reviewIndicator").style.display="none";
+
+show();
+
 };
 
 /* knowledge navigation */
@@ -307,29 +405,39 @@ flashcard.classList.remove("correct","incorrect");
 let knowledgeIndex=0;
 
 document.getElementById("nextTerm").onclick=()=>{
+
 knowledgeIndex=(knowledgeIndex+1)%cards.length;
 prompt.innerText=cards[knowledgeIndex].term;
+
 };
 
 document.getElementById("prevTerm").onclick=()=>{
+
 knowledgeIndex=(knowledgeIndex-1+cards.length)%cards.length;
 prompt.innerText=cards[knowledgeIndex].term;
+
 };
 
-/* preview switch */
+/* PDF preview */
 
 const preview=document.getElementById("preview");
 
 document.getElementById("double").onclick=()=>{
+
 preview.innerText="Double-Sided Layout Preview";
+
 };
 
 document.getElementById("single").onclick=()=>{
+
 preview.innerText="One-Sided Layout Preview";
+
 };
 
 document.getElementById("save").onclick=()=>{
+
 alert("PDF export coming next.");
+
 };
 
 show();
