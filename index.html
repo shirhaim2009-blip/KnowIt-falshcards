@@ -2,305 +2,339 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flashcard Study</title>
+<title>Flashcards</title>
 
 <style>
-body { 
-    font-family: 'Segoe UI', sans-serif; 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    justify-content: center;
-    padding: 50px 20px;
-    margin:0;
+
+body{
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#667eea,#764ba2);
+margin:0;
+padding:50px 20px;
+display:flex;
+justify-content:center;
 }
 
-.page-wrapper{
-    max-width:750px;
-    width:100%;
-    display:flex;
-    flex-direction:column;
-    gap:50px;
+.page{
+width:750px;
+display:flex;
+flex-direction:column;
+gap:45px;
 }
 
 .container{
-    background:white;
-    padding:30px;
-    border-radius:18px;
-    box-shadow:0 12px 30px rgba(0,0,0,.25);
+background:white;
+padding:30px;
+border-radius:18px;
+box-shadow:0 12px 30px rgba(0,0,0,.25);
 }
 
 /* Flashcard */
 
-.flashcard-container{
-    display:flex;
-    justify-content:center;
-    margin-bottom:30px;
-}
-
 .flashcard{
-    width:100%;
-    height:230px;
-    border-radius:14px;
-    background:#f9f9f9;
-    box-shadow:0 10px 30px rgba(0,0,0,.2);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:26px;
-    cursor:pointer;
-    perspective:1000px;
+width:100%;
+height:240px;
+background:#f9f9f9;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:28px;
+cursor:pointer;
+perspective:1000px;
+margin-bottom:30px;
 }
 
 .flashcard-inner{
-    width:100%;
-    height:100%;
-    position:relative;
-    transform-style:preserve-3d;
-    transition:transform .6s ease;
+width:100%;
+height:100%;
+position:relative;
+transform-style:preserve-3d;
+transition:transform .6s;
 }
 
 .flashcard.flipped .flashcard-inner{
-    transform:rotateY(180deg);
+transform:rotateY(180deg);
 }
 
 .flashcard-front,
 .flashcard-back{
-    position:absolute;
-    width:100%;
-    height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    backface-visibility:hidden;
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:20px;
+backface-visibility:hidden;
 }
 
 .flashcard-back{
-    transform:rotateY(180deg);
+transform:rotateY(180deg);
 }
+
+.flashcard.correct{border-left:7px solid #4caf50;}
+.flashcard.incorrect{border-left:7px solid #f44336;}
 
 /* Buttons */
 
-.button-row{
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:14px;
+.buttonRow{
+display:flex;
+flex-wrap:wrap;
+gap:14px;
+justify-content:center;
 }
 
 button{
-    width:130px;
-    height:42px;
-    border:none;
-    border-radius:12px;
-    background:#5471c0;
-    color:white;
-    font-size:14px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.2s;
+width:140px;
+height:44px;
+border:none;
+border-radius:12px;
+background:#5471c0;
+color:white;
+font-weight:600;
+font-size:15px;
+cursor:pointer;
+transition:.2s;
 }
 
 button:hover{
-    transform:translateY(-3px);
-    background:#405aa0;
+transform:translateY(-3px);
+background:#405aa0;
 }
 
-/* Knowledge section */
+/* Knowledge */
 
 #knowledgeTitle{
-    text-align:center;
-    font-size:28px;
-    margin-top:-5px;
-    margin-bottom:6px;
+font-size:30px;
+text-align:center;
+margin-bottom:6px;
 }
 
-#featureExplanation{
-    text-align:center;
-    color:#555;
-    margin-bottom:18px;
+#knowledgeExplain{
+text-align:center;
+color:#555;
+margin-bottom:20px;
+}
+
+#termPrompt{
+font-size:22px;
+font-weight:bold;
+text-align:left;
+margin-bottom:10px;
 }
 
 textarea{
-    width:100%;
-    margin-top:12px;
-    padding:12px;
-    border-radius:10px;
-    border:1px solid #ddd;
+width:100%;
+height:140px;
+font-size:18px;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
 }
 
-#submitInputBtn{
-    width:100%;
-    margin-top:12px;
-    background:#764ba2;
+#submitBtn{
+margin-top:14px;
+width:100%;
+background:#764ba2;
 }
 
-#responseArea{
-    margin-top:12px;
-    padding:12px;
-    background:#f4f4f4;
-    border-radius:10px;
+#response{
+margin-top:12px;
+padding:12px;
+background:#f4f4f4;
+border-radius:10px;
 }
 
-/* PDF preview section */
+/* PDF */
 
-.previewBox{
-    margin-top:30px;
-    border-top:1px solid #eee;
-    padding-top:25px;
+.preview{
+height:240px;
+border:1px dashed #ccc;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#777;
+margin-top:20px;
 }
 
-.previewButtons{
-    display:flex;
-    justify-content:center;
-    gap:14px;
-    margin-bottom:20px;
-}
-
-.pdfPreview{
-    background:#fafafa;
-    border:1px dashed #ccc;
-    border-radius:10px;
-    height:250px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:18px;
-    color:#777;
-}
 </style>
 </head>
+
 <body>
 
-<div class="page-wrapper">
+<div class="page">
 
 <!-- Flashcards -->
+
 <div class="container">
 
-<div class="flashcard-container">
 <div class="flashcard" id="flashcard">
 <div class="flashcard-inner">
 
-<div class="flashcard-front" id="cardFront">
+<div class="flashcard-front" id="front">
 Lusitania
 </div>
 
-<div class="flashcard-back" id="cardBack">
-British ship sunk by German U-boat
+<div class="flashcard-back" id="back">
+British passenger ship sunk by a German U-boat in 1915.
 </div>
 
 </div>
 </div>
-</div>
 
-<div class="button-row">
-<button id="prevBtn">Previous</button>
-<button id="incorrectBtn">Incorrect</button>
-<button id="correctBtn">Correct</button>
-<button id="nextBtn">Next</button>
-<button id="reviewWrongBtn">Review Wrong</button>
-<button id="resetBtn">Reset</button>
+<div class="buttonRow">
+<button id="prev">← Previous</button>
+<button id="incorrect">✖ Incorrect</button>
+<button id="correct">✔ Correct</button>
+<button id="next">Next →</button>
+<button id="review">Review Wrong</button>
+<button id="reset">Reset</button>
 </div>
 
 </div>
 
 
 <!-- Test Knowledge -->
+
 <div class="container">
 
 <div id="knowledgeTitle">Test Your Knowledge</div>
-<div id="featureExplanation">
-Write your explanation of the term and submit it for feedback.
+
+<div id="knowledgeExplain">
+Explain the term in your own words and submit it for feedback.
 </div>
 
-<div class="button-row">
-<button id="inputPrevBtn">Prev Term</button>
-<button id="inputNextBtn">Next Term</button>
+<div id="termPrompt">Lusitania</div>
+
+<textarea placeholder="Write your explanation here..." id="answer"></textarea>
+
+<div class="buttonRow" style="margin-top:14px;">
+<button id="prevTerm">← Previous Term</button>
+<button id="nextTerm">Next Term →</button>
 </div>
 
-<div id="currentTerm" style="text-align:center;font-size:22px;margin-top:15px;font-weight:bold;">
-Lusitania
-</div>
+<button id="submitBtn">Submit</button>
 
-<textarea id="userInput" placeholder="Type your answer here..."></textarea>
-
-<button id="submitInputBtn">Submit</button>
-
-<div id="responseArea">
+<div id="response">
 Response from OpenAI will appear here.
 </div>
 
-
-<!-- PDF Generator -->
-<div class="previewBox">
-
-<div class="previewButtons">
-<button id="doubleBtn">Double Sided</button>
-<button id="singleBtn">One Sided</button>
-<button id="savePdfBtn">Save PDF</button>
 </div>
 
-<div class="pdfPreview" id="pdfPreview">
+
+<!-- PDF Section -->
+
+<div class="container">
+
+<div class="buttonRow">
+<button id="double">Double Sided</button>
+<button id="single">One Sided</button>
+<button id="save">Save PDF</button>
+</div>
+
+<div class="preview" id="preview">
 Double-Sided Layout Preview
 </div>
 
 </div>
 
 </div>
-</div>
 
 <script>
 
-let flashcards=[
-{term:"Lusitania",definition:"British ship sunk by German U-boat"},
-{term:"Zimmermann Note",definition:"German telegram to Mexico"},
-{term:"Treaty of Versailles",definition:"Ended World War I"}
+let cards=[
+{term:"Lusitania",def:"British passenger ship sunk by a German U-boat in 1915."},
+{term:"Zimmermann Note",def:"German proposal asking Mexico to join WWI against the U.S."},
+{term:"Treaty of Versailles",def:"1919 treaty that officially ended World War I."}
 ];
 
 let current=0;
 
-const flashcardDiv=document.getElementById("flashcard");
-const cardFront=document.getElementById("cardFront");
-const cardBack=document.getElementById("cardBack");
+const flashcard=document.getElementById("flashcard");
+const front=document.getElementById("front");
+const back=document.getElementById("back");
+const prompt=document.getElementById("termPrompt");
 
-function showCard(){
-cardFront.innerText=flashcards[current].term;
-cardBack.innerText=flashcards[current].definition;
-document.getElementById("currentTerm").innerText=flashcards[current].term;
-flashcardDiv.classList.remove("flipped");
+/* show card */
+
+function show(){
+front.innerText=cards[current].term;
+back.innerText=cards[current].def;
+prompt.innerText=cards[current].term;
+flashcard.classList.remove("flipped");
 }
 
-flashcardDiv.onclick=()=>flashcardDiv.classList.toggle("flipped");
+/* flip */
 
-document.getElementById("nextBtn").onclick=()=>{
-current=(current+1)%flashcards.length;
-showCard();
+flashcard.onclick=()=>flashcard.classList.toggle("flipped");
+
+/* navigation */
+
+document.getElementById("next").onclick=()=>{
+current=(current+1)%cards.length;
+show();
 };
 
-document.getElementById("prevBtn").onclick=()=>{
-current=(current-1+flashcards.length)%flashcards.length;
-showCard();
+document.getElementById("prev").onclick=()=>{
+current=(current-1+cards.length)%cards.length;
+show();
 };
 
-/* Preview switching */
+/* correct incorrect */
 
-const preview=document.getElementById("pdfPreview");
+document.getElementById("correct").onclick=()=>{
+flashcard.classList.remove("incorrect");
+flashcard.classList.add("correct");
+};
 
-document.getElementById("doubleBtn").onclick=()=>{
+document.getElementById("incorrect").onclick=()=>{
+flashcard.classList.remove("correct");
+flashcard.classList.add("incorrect");
+};
+
+/* reset */
+
+document.getElementById("reset").onclick=()=>{
+flashcard.classList.remove("correct","incorrect");
+};
+
+/* knowledge navigation */
+
+let knowledgeIndex=0;
+
+document.getElementById("nextTerm").onclick=()=>{
+knowledgeIndex=(knowledgeIndex+1)%cards.length;
+prompt.innerText=cards[knowledgeIndex].term;
+};
+
+document.getElementById("prevTerm").onclick=()=>{
+knowledgeIndex=(knowledgeIndex-1+cards.length)%cards.length;
+prompt.innerText=cards[knowledgeIndex].term;
+};
+
+/* preview switch */
+
+const preview=document.getElementById("preview");
+
+document.getElementById("double").onclick=()=>{
 preview.innerText="Double-Sided Layout Preview";
 };
 
-document.getElementById("singleBtn").onclick=()=>{
+document.getElementById("single").onclick=()=>{
 preview.innerText="One-Sided Layout Preview";
 };
 
-document.getElementById("savePdfBtn").onclick=()=>{
-alert("PDF export will be added next.");
+document.getElementById("save").onclick=()=>{
+alert("PDF export coming next.");
 };
 
-showCard();
+show();
 
 </script>
+
 </body>
 </html>
