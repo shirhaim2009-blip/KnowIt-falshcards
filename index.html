@@ -29,8 +29,6 @@ border-radius:18px;
 box-shadow:0 12px 30px rgba(0,0,0,.25);
 }
 
-/* Review indicator */
-
 #reviewIndicator{
 text-align:center;
 color:#c0392b;
@@ -39,11 +37,9 @@ margin-bottom:10px;
 display:none;
 }
 
-/* Flashcard */
-
 .flashcard{
 width:100%;
-height:240px;
+height:260px;
 background:#f9f9f9;
 border-radius:14px;
 box-shadow:0 10px 25px rgba(0,0,0,.2);
@@ -74,16 +70,13 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-
 display:flex;
 justify-content:center;
 align-items:center;
-
 text-align:center;
 font-size:28px;
 padding:30px;
 box-sizing:border-box;
-
 backface-visibility:hidden;
 }
 
@@ -93,8 +86,6 @@ transform:rotateY(180deg);
 
 .flashcard.correct{border-left:7px solid #4caf50;}
 .flashcard.incorrect{border-left:7px solid #f44336;}
-
-/* Buttons */
 
 .buttonRow{
 display:flex;
@@ -120,8 +111,6 @@ button:hover{
 transform:translateY(-3px);
 background:#405aa0;
 }
-
-/* Knowledge */
 
 #knowledgeTitle{
 font-size:30px;
@@ -164,8 +153,6 @@ background:#f4f4f4;
 border-radius:10px;
 }
 
-/* PDF */
-
 .preview{
 height:240px;
 border:1px dashed #ccc;
@@ -183,8 +170,6 @@ margin-top:20px;
 <body>
 
 <div class="page">
-
-<!-- Flashcards -->
 
 <div class="container">
 
@@ -216,8 +201,6 @@ British passenger ship sunk by a German U-boat in 1915.
 </div>
 
 
-<!-- Test Knowledge -->
-
 <div class="container">
 
 <div id="knowledgeTitle">Test Your Knowledge</div>
@@ -243,8 +226,6 @@ Response from OpenAI will appear here.
 
 </div>
 
-
-<!-- PDF Generator -->
 
 <div class="container">
 
@@ -281,24 +262,20 @@ const front=document.getElementById("front");
 const back=document.getElementById("back");
 const prompt=document.getElementById("termPrompt");
 
-/* show card */
-
 function show(){
 
 front.innerText=cards[current].term;
 back.innerText=cards[current].def;
-
 prompt.innerText=cards[current].term;
 
+/* reset visual state when switching cards */
 flashcard.classList.remove("flipped");
+flashcard.classList.remove("correct");
+flashcard.classList.remove("incorrect");
 
 }
 
-/* flip */
-
 flashcard.onclick=()=>flashcard.classList.toggle("flipped");
-
-/* navigation */
 
 document.getElementById("next").onclick=()=>{
 
@@ -336,8 +313,6 @@ show();
 
 };
 
-/* mark correct */
-
 document.getElementById("correct").onclick=()=>{
 
 flashcard.classList.add("correct");
@@ -350,8 +325,6 @@ wrongCards=wrongCards.filter(i=>i!==current);
 
 };
 
-/* mark incorrect */
-
 document.getElementById("incorrect").onclick=()=>{
 
 flashcard.classList.add("incorrect");
@@ -363,8 +336,6 @@ wrongCards.push(current);
 correctCards=correctCards.filter(i=>i!==current);
 
 };
-
-/* review wrong */
 
 document.getElementById("review").onclick=()=>{
 
@@ -384,8 +355,6 @@ show();
 
 };
 
-/* reset */
-
 document.getElementById("reset").onclick=()=>{
 
 correctCards=[];
@@ -394,13 +363,16 @@ reviewMode=false;
 
 current=0;
 
+/* remove all visual states */
+flashcard.classList.remove("correct");
+flashcard.classList.remove("incorrect");
+flashcard.classList.remove("flipped");
+
 document.getElementById("reviewIndicator").style.display="none";
 
 show();
 
 };
-
-/* knowledge navigation */
 
 let knowledgeIndex=0;
 
@@ -417,8 +389,6 @@ knowledgeIndex=(knowledgeIndex-1+cards.length)%cards.length;
 prompt.innerText=cards[knowledgeIndex].term;
 
 };
-
-/* PDF preview */
 
 const preview=document.getElementById("preview");
 
