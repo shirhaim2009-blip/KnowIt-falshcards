@@ -8,163 +8,194 @@
 <style>
 body { 
     font-family: 'Segoe UI', sans-serif; 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     margin: 0;
-}
-
-/* 🔷 NAVBAR */
-.navbar {
     display: flex;
-    justify-content: center;
-    background: #ffffff22;
-    padding: 10px;
-    gap: 10px;
 }
 
-.nav-btn {
-    padding: 10px 15px;
+/* 🔷 SIDEBAR */
+.sidebar {
+    width: 220px;
+    background: #ffffff22;
+    backdrop-filter: blur(10px);
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.menu-btn {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px;
     border: none;
     border-radius: 8px;
     background: white;
-    cursor: pointer;
     font-weight: bold;
+    cursor: pointer;
 }
 
-.nav-btn.active {
+.menu-btn.active {
     background: #5471c0;
     color: white;
 }
 
-/* 🔷 PAGE WRAPPER */
-.page {
-    display: none;
+/* 🔷 MAIN AREA */
+.main {
+    flex: 1;
+    display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px 20px;
+}
+
+/* 🔷 PAGE SYSTEM */
+.page {
+    display: none;
 }
 
 .page.active {
-    display: flex;
+    display: block;
 }
 
-/* 🔷 CARD */
+/* 🔷 ORIGINAL CARD STYLE */
 .container { 
     background: white; 
     padding: 2rem; 
     border-radius: 15px; 
     box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
     width: 100%; 
-    max-width: 500px;
+    max-width: 500px; 
 }
 
-h2 { text-align: center; }
+h2 { 
+    text-align: center;
+    margin-top: 0;
+}
 
 textarea { 
     width: 100%; 
     height: 100px; 
+    padding: 10px; 
     margin: 10px 0; 
-    padding: 10px;
     border-radius: 8px;
     border: 1px solid #ddd;
+    font-size: 16px;
 }
 
 button { 
     width: 100%; 
     padding: 12px; 
-    background: #5471c0; 
+    background-color: #5471c0; 
     color: white; 
     border: none; 
     border-radius: 8px; 
-    font-weight: bold;
-    cursor: pointer;
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: bold; 
 }
 
-#copyBtn { display: none; margin-top: 10px; }
+button:hover { 
+    opacity: 0.9; 
+}
 
-#status {
+#status { 
+    margin-top: 15px; 
+    padding: 10px; 
+    background: #f9f9f9; 
+    border-left: 5px solid #5471c0; 
+    border-radius: 4px; 
+    display: none; 
+}
+
+#copyBtn {
     display: none;
-    margin-top: 15px;
-    padding: 10px;
-    background: #f4f4f4;
-    border-left: 5px solid #5471c0;
+    margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔷 NAVIGATION -->
-<div class="navbar">
-    <button class="nav-btn active" onclick="showPage('flashcards')">Flashcards</button>
-    <button class="nav-btn" onclick="showPage('explain')">Explain It</button>
-    <button class="nav-btn" onclick="showPage('print')">Printing</button>
+<!-- 🔷 SIDEBAR -->
+<div class="sidebar">
+    <button class="menu-btn active" onclick="showPage('flashcards', this)">Flashcards</button>
+    <button class="menu-btn" onclick="showPage('explain', this)">Explain</button>
+    <button class="menu-btn" onclick="showPage('print', this)">Printing</button>
 </div>
 
-<!-- 🔷 FLASHCARDS PAGE -->
-<div id="flashcards" class="page active">
-    <div class="container">
-        <h2>Create Flashcards</h2>
+<!-- 🔷 MAIN CONTENT -->
+<div class="main">
 
-        <form id="flashForm">
-            <textarea placeholder="What do you want flashcards on?" required></textarea>
-            <button type="submit">Generate</button>
-        </form>
+    <!-- FLASHCARDS -->
+    <div id="flashcards" class="page active">
+        <div class="container">
+            <h2>Create Your Flashcard Set</h2>
 
-        <div id="status">Loading...</div>
-        <button id="copyBtn">Copy Flashcard Link</button>
+            <form id="autoTagForm">
+                <textarea name="UserInput" placeholder="What would you like to learn today?" required></textarea>
+                <button type="submit">Make It</button>
+            </form>
+
+            <div id="status">Sending...</div>
+            <button id="copyBtn">Copy Flashcard Link</button>
+        </div>
     </div>
-</div>
 
-<!-- 🔷 EXPLAIN PAGE -->
-<div id="explain" class="page">
-    <div class="container">
-        <h2>Explain in Your Own Words</h2>
+    <!-- EXPLAIN -->
+    <div id="explain" class="page">
+        <div class="container">
+            <h2>Explain in Your Own Words</h2>
 
-        <textarea id="explainInput" placeholder="Enter a concept..."></textarea>
-        <button onclick="generateExplanation()">Explain</button>
+            <textarea id="explainInput" placeholder="Enter a concept..."></textarea>
+            <button onclick="generateExplanation()">Explain</button>
 
-        <div id="explainOutput" style="margin-top:15px;"></div>
+            <div id="explainOutput" style="margin-top:15px;"></div>
+        </div>
     </div>
-</div>
 
-<!-- 🔷 PRINT PAGE -->
-<div id="print" class="page">
-    <div class="container">
-        <h2>Print Flashcards</h2>
+    <!-- PRINT -->
+    <div id="print" class="page">
+        <div class="container">
+            <h2>Print Flashcards</h2>
 
-        <p>Click below to print your flashcards.</p>
-        <button onclick="window.print()">Print</button>
+            <p>Click below to print your flashcards.</p>
+            <button onclick="window.print()">Print</button>
+        </div>
     </div>
+
 </div>
 
 <script>
 
-// 🔷 TAB SWITCHING
-function showPage(pageId) {
+// 🔷 SIDEBAR NAVIGATION
+function showPage(pageId, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
 
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 }
 
-// 🔷 FLASHCARD LOGIC
-const form = document.getElementById('flashForm');
+// 🔷 FLASHCARD LOGIC (your original)
+const form = document.getElementById('autoTagForm');
 const statusDiv = document.getElementById('status');
 const copyBtn = document.getElementById('copyBtn');
 
 const resultLink = "https://shirhaim2009-blip.github.io/KnowIt-falshcards/";
 
 form.addEventListener('submit', e => {
+
     e.preventDefault();
+
+    copyBtn.style.display = "none";
 
     statusDiv.style.display = 'block';
     statusDiv.innerText = 'Generating flashcards...';
 
     setTimeout(() => {
-        statusDiv.innerText = 'Done! Copy your link.';
-        copyBtn.style.display = 'block';
+        statusDiv.innerText = "Success! Copy your link.";
+        copyBtn.style.display = "block";
     }, 1500);
+
 });
 
 copyBtn.addEventListener("click", () => {
@@ -172,7 +203,7 @@ copyBtn.addEventListener("click", () => {
     copyBtn.innerText = "Copied!";
 });
 
-// 🔷 EXPLAIN FEATURE
+// 🔷 EXPLAIN
 function generateExplanation() {
     const input = document.getElementById("explainInput").value;
     const output = document.getElementById("explainOutput");
@@ -182,8 +213,7 @@ function generateExplanation() {
         return;
     }
 
-    // simple placeholder logic (replace with API later)
-    output.innerText = "In simple terms: " + input + " means breaking it down into easy-to-understand ideas.";
+    output.innerText = "In simple terms: " + input + " means explaining it clearly and simply.";
 }
 
 </script>
