@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Flashcards</title>
-
 <style>
 body{
   font-family:'Segoe UI',sans-serif;
@@ -12,53 +11,90 @@ body{
   display:flex;
   height:100vh;
   overflow:hidden;
-  transition:all .3s;
 }
 
-/* COLLAPSIBLE SIDEBAR - SHRINK/EXPAND */
+/* FLOATING MENU BUTTON */
+.menu-toggle{
+  position:fixed;
+  top:20px;
+  left:20px;
+  width:50px;
+  height:50px;
+  border:none;
+  border-radius:50%;
+  background:#5471c0;
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+  z-index:1100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all 0.3s ease;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+}
+
+.menu-toggle.active{
+  transform:scale(1.1);
+  background:#405aa0;
+}
+
+/* SIDEBAR PANEL */
 .sidebar{
   position:fixed;
-  left:0;
   top:0;
-  width:60px;
+  left:-240px;
+  width:240px;
   height:100%;
-  background:#f4f6fb;
-  border-right:1px solid #ddd;
+  background:rgba(255,255,255,0.95);
+  box-shadow:2px 0 12px rgba(0,0,0,0.1);
   display:flex;
   flex-direction:column;
-  padding:10px 5px;
+  padding:20px;
   gap:10px;
-  transition:.3s;
+  transition:left 0.5s ease, opacity 0.3s ease;
+  opacity:0;
+  z-index:1050;
   overflow:hidden;
-  z-index:1000;
 }
 
 .sidebar.open{
-  width:220px;
-  padding:20px;
+  left:0;
+  opacity:1;
 }
 
-/* MENU BUTTONS */
 .sidebar h2{
   margin:0 0 10px 0;
   font-size:18px;
   color:#333;
-  text-align:left; /* top-left alignment */
+  text-align:left;
+  opacity:0;
+  transform:translateX(-20px);
+  transition:all 0.3s ease;
+}
+
+.sidebar.open h2{
+  opacity:1;
+  transform:translateX(0);
 }
 
 .tab-btn{
   background:none;
   border:none;
   color:#444;
-  text-align:left; /* left aligned text */
-  padding:10px;
+  text-align:left;
+  padding:12px 10px;
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
-  transition:.2s;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  opacity:0;
+  transform:translateX(-20px);
+  transition:all 0.3s ease;
+}
+
+.sidebar.open .tab-btn{
+  opacity:1;
+  transform:translateX(0);
 }
 
 .tab-btn:hover{
@@ -70,32 +106,16 @@ body{
   font-weight:600;
 }
 
-/* TOGGLE BUTTON */
-.menu-toggle{
-  position:fixed;
-  top:20px;
-  left:10px;
-  width:45px;
-  height:45px;
-  border:none;
-  border-radius:10px;
-  background:#5471c0;
-  color:white;
-  font-size:20px;
-  cursor:pointer;
-  z-index:1100;
-}
-
-/* MAIN */
+/* MAIN CONTENT */
 .main{
   flex:1;
   padding:40px;
   overflow:auto;
-  margin-left:60px;
-  transition: margin-left .3s;
+  margin-left:0;
+  transition:margin-left 0.5s ease;
 }
 .main.shifted{
-  margin-left:220px;
+  margin-left:240px;
 }
 
 /* TABS */
@@ -125,6 +145,7 @@ body{
   cursor:pointer;
   perspective:1000px;
   margin:30px 0;
+  transition:all 0.3s ease;
 }
 
 .flashcard-inner{
@@ -258,8 +279,8 @@ textarea{
 </head>
 <body>
 
-<!-- MENU TOGGLE -->
-<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+<!-- FLOATING MENU BUTTON -->
+<button class="menu-toggle" id="menuToggle">☰</button>
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
@@ -274,6 +295,7 @@ textarea{
 
 <div id="study" class="tab active">
 <div class="container">
+
 <div class="buttonRow" style="justify-content:flex-end;">
 <button id="toggleMode">Mode: Term → Definition</button>
 </div>
@@ -302,6 +324,7 @@ textarea{
 
 <div id="test" class="tab">
 <div class="container">
+
 <div id="knowledgeTitle">Test Your Knowledge</div>
 <div id="knowledgeExplain">
 Explain the term in your own words and submit it for feedback.
@@ -309,51 +332,61 @@ Explain the term in your own words and submit it for feedback.
 
 <div id="termPrompt"></div>
 <textarea placeholder="Write your explanation here..."></textarea>
+
 <div class="buttonRow" style="margin-top:14px;">
 <button id="prevTerm">← Previous Term</button>
 <button id="nextTerm">Next Term →</button>
 </div>
+
 <button id="submitBtn">Submit</button>
+
 <div style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
 Response will appear here.
 </div>
+
 </div>
 </div>
 
 <div id="print" class="tab">
 <div class="container">
+
 <div class="buttonRow">
 <button id="double">⇄ Double Sided</button>
 <button id="single">☰ One Sided</button>
 <button id="save">⬇ Save PDF</button>
 </div>
+
 <div class="preview" id="preview">
 Double-Sided Layout Preview
 </div>
+
 </div>
 </div>
 
 </div>
 
 <script>
-/* MENU TOGGLE */
-function toggleMenu(){
-  const sidebar=document.getElementById("sidebar");
-  const main=document.getElementById("main");
-  sidebar.classList.toggle("open");
-  main.classList.toggle("shifted");
-}
+/* MENU TOGGLE WITH SMOOTH ANIMATION */
+const menuToggle=document.getElementById("menuToggle");
+const sidebar=document.getElementById("sidebar");
+const main=document.getElementById("main");
+
+menuToggle.onclick=()=>{
+  const open=!sidebar.classList.contains("open");
+  sidebar.classList.toggle("open", open);
+  main.classList.toggle("shifted", open);
+  menuToggle.classList.toggle("active", open);
+};
 
 /* TAB SWITCH */
 function openTab(tabId, btn){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById(tabId).classList.add("active");
-
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 }
 
-/* DATA */
+/* FLASHCARD DATA */
 let cards=[
   {term:"Lusitania",def:"British ship sunk in WWI",status:null},
   {term:"Zimmermann Note",def:"Germany asked Mexico to fight US",status:null},
@@ -363,7 +396,7 @@ let current=0;
 let studyMode="term";
 let reviewMode=false;
 
-/* SHOW */
+/* FLASHCARD SHOW */
 const front=document.getElementById("front");
 const back=document.getElementById("back");
 const flashcard=document.getElementById("flashcard");
@@ -382,44 +415,25 @@ function show(){
     `Card ${current+1}/${cards.length} | Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
 }
 
-/* EVENTS */
+/* FLASHCARD EVENTS */
 flashcard.onclick=()=>flashcard.classList.toggle("flipped");
 
-function getWrongIndexes(){
-  return cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
-}
+function getWrongIndexes(){return cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);}
 
 document.getElementById("next").onclick=()=>{
-  if(reviewMode){
-    let wrong=getWrongIndexes();
-    let i=wrong.indexOf(current);
-    current=wrong[(i+1)%wrong.length];
-  }else{
-    current=(current+1)%cards.length;
-  }
+  if(reviewMode){let wrong=getWrongIndexes(); let i=wrong.indexOf(current); current=wrong[(i+1)%wrong.length];}
+  else{current=(current+1)%cards.length;}
   show();
 };
 
 document.getElementById("prev").onclick=()=>{
-  if(reviewMode){
-    let wrong=getWrongIndexes();
-    let i=wrong.indexOf(current);
-    current=wrong[(i-1+wrong.length)%wrong.length];
-  }else{
-    current=(current-1+cards.length)%cards.length;
-  }
+  if(reviewMode){let wrong=getWrongIndexes(); let i=wrong.indexOf(current); current=wrong[(i-1+wrong.length)%wrong.length];}
+  else{current=(current-1+cards.length)%cards.length;}
   show();
 };
 
-document.getElementById("correct").onclick=()=>{
-  cards[current].status="correct";
-  show();
-};
-
-document.getElementById("incorrect").onclick=()=>{
-  cards[current].status="incorrect";
-  show();
-};
+document.getElementById("correct").onclick=()=>{cards[current].status="correct"; show();};
+document.getElementById("incorrect").onclick=()=>{cards[current].status="incorrect"; show();};
 
 document.getElementById("review").onclick=()=>{
   let wrong=getWrongIndexes();
@@ -445,7 +459,7 @@ document.getElementById("toggleMode").onclick=()=>{
   show();
 };
 
-/* TEST NAV */
+/* TEST NAVIGATION */
 let k=0;
 document.getElementById("nextTerm").onclick=()=>{
   k=(k+1)%cards.length;
