@@ -5,263 +5,260 @@
 <title>Flashcards</title>
 
 <style>
-
 body{
-font-family:'Segoe UI',sans-serif;
-background:linear-gradient(135deg,#667eea,#764ba2);
-margin:0;
-display:flex;
-height:100vh;
-overflow:hidden;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  margin:0;
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+  transition:all .3s;
 }
 
-/* SIDEBAR (COLLAPSIBLE) */
-
+/* COLLAPSIBLE SIDEBAR - SHRINK/EXPAND */
 .sidebar{
-position:fixed;
-left:-220px;
-top:0;
-width:220px;
-height:100%;
-background:#f4f6fb;
-border-right:1px solid #ddd;
-display:flex;
-flex-direction:column;
-padding:20px;
-gap:10px;
-transition:.3s;
-z-index:1000;
+  position:fixed;
+  left:0;
+  top:0;
+  width:60px;
+  height:100%;
+  background:#f4f6fb;
+  border-right:1px solid #ddd;
+  display:flex;
+  flex-direction:column;
+  padding:10px 5px;
+  gap:10px;
+  transition:.3s;
+  overflow:hidden;
+  z-index:1000;
 }
 
 .sidebar.open{
-left:0;
-}
-
-.sidebar h2{
-margin:0 0 10px 0;
-font-size:18px;
-color:#333;
-text-align:center;
+  width:220px;
+  padding:20px;
 }
 
 /* MENU BUTTONS */
+.sidebar h2{
+  margin:0 0 10px 0;
+  font-size:18px;
+  color:#333;
+  text-align:left; /* top-left alignment */
+}
 
 .tab-btn{
-background:none;
-border:none;
-color:#444;
-text-align:center;   /* FIXED alignment */
-padding:12px;
-border-radius:8px;
-cursor:pointer;
-font-size:14px;
-transition:.2s;
+  background:none;
+  border:none;
+  color:#444;
+  text-align:left; /* left aligned text */
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+  transition:.2s;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .tab-btn:hover{
-background:#e4e9f7;
+  background:#e4e9f7;
 }
 
 .tab-btn.active{
-background:#d6def7;
-font-weight:600;
+  background:#d6def7;
+  font-weight:600;
 }
 
 /* TOGGLE BUTTON */
-
 .menu-toggle{
-position:fixed;
-top:20px;
-left:20px;
-width:45px;
-height:45px;
-border:none;
-border-radius:10px;
-background:#5471c0;
-color:white;
-font-size:20px;
-cursor:pointer;
-z-index:1100;
+  position:fixed;
+  top:20px;
+  left:10px;
+  width:45px;
+  height:45px;
+  border:none;
+  border-radius:10px;
+  background:#5471c0;
+  color:white;
+  font-size:20px;
+  cursor:pointer;
+  z-index:1100;
 }
 
 /* MAIN */
-
 .main{
-flex:1;
-padding:40px;
-overflow:auto;
-width:100%;
+  flex:1;
+  padding:40px;
+  overflow:auto;
+  margin-left:60px;
+  transition: margin-left .3s;
+}
+.main.shifted{
+  margin-left:220px;
 }
 
 /* TABS */
-
 .tab{display:none;}
 .tab.active{display:block;}
 
 /* CONTAINER */
-
 .container{
-background:white;
-padding:30px;
-border-radius:18px;
-box-shadow:0 12px 30px rgba(0,0,0,.15);
-max-width:750px;
-margin:auto;
+  background:white;
+  padding:30px;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
+  max-width:750px;
+  margin:auto;
 }
 
 /* FLASHCARD */
-
 .flashcard{
-width:100%;
-height:260px;
-background:#f9f9f9;
-border-radius:14px;
-box-shadow:0 10px 25px rgba(0,0,0,.2);
-display:flex;
-justify-content:center;
-align-items:center;
-cursor:pointer;
-perspective:1000px;
-margin:30px 0;
+  width:100%;
+  height:260px;
+  background:#f9f9f9;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,.2);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  perspective:1000px;
+  margin:30px 0;
 }
 
 .flashcard-inner{
-width:100%;
-height:100%;
-position:relative;
-transform-style:preserve-3d;
-transition:transform .6s;
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .6s;
 }
 
 .flashcard.flipped .flashcard-inner{
-transform:rotateY(180deg);
+  transform:rotateY(180deg);
 }
 
 .flashcard-front,
 .flashcard-back{
-position:absolute;
-width:100%;
-height:100%;
-display:flex;
-justify-content:center;
-align-items:center;
-text-align:center;
-font-size:28px;
-padding:30px;
-box-sizing:border-box;
-backface-visibility:hidden;
+  position:absolute;
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  font-size:28px;
+  padding:30px;
+  box-sizing:border-box;
+  backface-visibility:hidden;
 }
 
 .flashcard-back{
-transform:rotateY(180deg);
+  transform:rotateY(180deg);
 }
 
 .flashcard.correct{border-left:7px solid #4caf50;}
 .flashcard.incorrect{border-left:7px solid #f44336;}
 
 /* BUTTONS */
-
 .buttonRow{
-display:flex;
-flex-wrap:wrap;
-gap:14px;
-justify-content:center;
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  justify-content:center;
 }
 
 button{
-width:140px;
-height:44px;
-border:none;
-border-radius:12px;
-background:#5471c0;
-color:white;
-font-weight:600;
-font-size:14px;
-cursor:pointer;
-transition:.2s;
+  width:140px;
+  height:44px;
+  border:none;
+  border-radius:12px;
+  background:#5471c0;
+  color:white;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  transition:.2s;
 }
 
 button:hover{
-transform:translateY(-3px);
-background:#405aa0;
+  transform:translateY(-3px);
+  background:#405aa0;
 }
 
 #toggleMode{
-width:auto;
-padding:0 18px;
-min-width:220px;
+  width:auto;
+  padding:0 18px;
+  min-width:220px;
 }
 
 /* TEXT */
-
 #knowledgeTitle{
-font-size:32px;
-text-align:center;
-margin-bottom:6px;
+  font-size:32px;
+  text-align:center;
+  margin-bottom:6px;
 }
 
 #knowledgeExplain{
-text-align:center;
-color:#555;
-margin-bottom:20px;
+  text-align:center;
+  color:#555;
+  margin-bottom:20px;
 }
 
 #termPrompt{
-font-size:22px;
-font-weight:bold;
-text-align:left;
-margin-bottom:10px;
+  font-size:22px;
+  font-weight:bold;
+  text-align:left;
+  margin-bottom:10px;
 }
 
 textarea{
-width:100%;
-height:140px;
-font-size:18px;
-padding:12px;
-border-radius:10px;
-border:1px solid #ddd;
+  width:100%;
+  height:140px;
+  font-size:18px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ddd;
 }
 
 #submitBtn{
-margin-top:14px;
-width:100%;
-background:#764ba2;
+  margin-top:14px;
+  width:100%;
+  background:#764ba2;
 }
 
 .preview{
-height:240px;
-border:1px dashed #ccc;
-border-radius:10px;
-display:flex;
-align-items:center;
-justify-content:center;
-color:#777;
-margin-top:20px;
+  height:240px;
+  border:1px dashed #ccc;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#777;
+  margin-top:20px;
 }
 
 /* PROGRESS */
-
 #progress{
-text-align:center;
-margin-bottom:10px;
-font-size:15px;
-color:#555;
+  text-align:center;
+  margin-bottom:10px;
+  font-size:15px;
+  color:#555;
 }
 
 #reviewIndicator{
-text-align:center;
-color:#c0392b;
-display:none;
-margin-bottom:10px;
-font-weight:bold;
+  text-align:center;
+  color:#c0392b;
+  display:none;
+  margin-bottom:10px;
+  font-weight:bold;
 }
-
 </style>
 </head>
-
 <body>
 
-<!-- MENU BUTTON -->
+<!-- MENU TOGGLE -->
 <button class="menu-toggle" onclick="toggleMenu()">☰</button>
 
 <!-- SIDEBAR -->
@@ -273,11 +270,10 @@ font-weight:bold;
 </div>
 
 <!-- MAIN -->
-<div class="main">
+<div class="main" id="main">
 
 <div id="study" class="tab active">
 <div class="container">
-
 <div class="buttonRow" style="justify-content:flex-end;">
 <button id="toggleMode">Mode: Term → Definition</button>
 </div>
@@ -306,193 +302,167 @@ font-weight:bold;
 
 <div id="test" class="tab">
 <div class="container">
-
 <div id="knowledgeTitle">Test Your Knowledge</div>
 <div id="knowledgeExplain">
 Explain the term in your own words and submit it for feedback.
 </div>
 
 <div id="termPrompt"></div>
-
 <textarea placeholder="Write your explanation here..."></textarea>
-
 <div class="buttonRow" style="margin-top:14px;">
 <button id="prevTerm">← Previous Term</button>
 <button id="nextTerm">Next Term →</button>
 </div>
-
 <button id="submitBtn">Submit</button>
-
 <div style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
 Response will appear here.
 </div>
-
 </div>
 </div>
 
 <div id="print" class="tab">
 <div class="container">
-
 <div class="buttonRow">
 <button id="double">⇄ Double Sided</button>
 <button id="single">☰ One Sided</button>
 <button id="save">⬇ Save PDF</button>
 </div>
-
 <div class="preview" id="preview">
 Double-Sided Layout Preview
 </div>
-
 </div>
 </div>
 
 </div>
 
 <script>
-
 /* MENU TOGGLE */
-
 function toggleMenu(){
-document.getElementById("sidebar").classList.toggle("open");
+  const sidebar=document.getElementById("sidebar");
+  const main=document.getElementById("main");
+  sidebar.classList.toggle("open");
+  main.classList.toggle("shifted");
 }
 
 /* TAB SWITCH */
-
 function openTab(tabId, btn){
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-document.getElementById(tabId).classList.add("active");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
 
-document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
 }
 
 /* DATA */
-
 let cards=[
-{term:"Lusitania",def:"British ship sunk in WWI",status:null},
-{term:"Zimmermann Note",def:"Germany asked Mexico to fight US",status:null},
-{term:"Treaty of Versailles",def:"Ended WWI",status:null}
+  {term:"Lusitania",def:"British ship sunk in WWI",status:null},
+  {term:"Zimmermann Note",def:"Germany asked Mexico to fight US",status:null},
+  {term:"Treaty of Versailles",def:"Ended WWI",status:null}
 ];
-
 let current=0;
 let studyMode="term";
 let reviewMode=false;
 
 /* SHOW */
-
 const front=document.getElementById("front");
 const back=document.getElementById("back");
 const flashcard=document.getElementById("flashcard");
 
 function show(){
-let c=cards[current];
-
-front.innerText = (studyMode==="term") ? c.term : c.def;
-back.innerText = (studyMode==="term") ? c.def : c.term;
-
-flashcard.classList.remove("flipped","correct","incorrect");
-if(c.status==="correct") flashcard.classList.add("correct");
-if(c.status==="incorrect") flashcard.classList.add("incorrect");
-
-document.getElementById("termPrompt").innerText = c.term;
-
-let correctCount = cards.filter(c=>c.status==="correct").length;
-let incorrectCount = cards.filter(c=>c.status==="incorrect").length;
-
-document.getElementById("progress").innerText =
-`Card ${current+1}/${cards.length} | Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
+  let c=cards[current];
+  front.innerText = (studyMode==="term") ? c.term : c.def;
+  back.innerText = (studyMode==="term") ? c.def : c.term;
+  flashcard.classList.remove("flipped","correct","incorrect");
+  if(c.status==="correct") flashcard.classList.add("correct");
+  if(c.status==="incorrect") flashcard.classList.add("incorrect");
+  document.getElementById("termPrompt").innerText = c.term;
+  let correctCount = cards.filter(c=>c.status==="correct").length;
+  let incorrectCount = cards.filter(c=>c.status==="incorrect").length;
+  document.getElementById("progress").innerText =
+    `Card ${current+1}/${cards.length} | Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
 }
 
 /* EVENTS */
-
 flashcard.onclick=()=>flashcard.classList.toggle("flipped");
 
 function getWrongIndexes(){
-return cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
+  return cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
 }
 
 document.getElementById("next").onclick=()=>{
-if(reviewMode){
-let wrong=getWrongIndexes();
-let i=wrong.indexOf(current);
-current=wrong[(i+1)%wrong.length];
-}else{
-current=(current+1)%cards.length;
-}
-show();
+  if(reviewMode){
+    let wrong=getWrongIndexes();
+    let i=wrong.indexOf(current);
+    current=wrong[(i+1)%wrong.length];
+  }else{
+    current=(current+1)%cards.length;
+  }
+  show();
 };
 
 document.getElementById("prev").onclick=()=>{
-if(reviewMode){
-let wrong=getWrongIndexes();
-let i=wrong.indexOf(current);
-current=wrong[(i-1+wrong.length)%wrong.length];
-}else{
-current=(current-1+cards.length)%cards.length;
-}
-show();
+  if(reviewMode){
+    let wrong=getWrongIndexes();
+    let i=wrong.indexOf(current);
+    current=wrong[(i-1+wrong.length)%wrong.length];
+  }else{
+    current=(current-1+cards.length)%cards.length;
+  }
+  show();
 };
 
 document.getElementById("correct").onclick=()=>{
-cards[current].status="correct";
-show();
+  cards[current].status="correct";
+  show();
 };
 
 document.getElementById("incorrect").onclick=()=>{
-cards[current].status="incorrect";
-show();
+  cards[current].status="incorrect";
+  show();
 };
 
 document.getElementById("review").onclick=()=>{
-let wrong=getWrongIndexes();
-if(wrong.length===0){
-alert("No incorrect cards yet!");
-return;
-}
-reviewMode=true;
-current=wrong[0];
-document.getElementById("reviewIndicator").style.display="block";
-show();
+  let wrong=getWrongIndexes();
+  if(wrong.length===0){alert("No incorrect cards yet!"); return;}
+  reviewMode=true;
+  current=wrong[0];
+  document.getElementById("reviewIndicator").style.display="block";
+  show();
 };
 
 document.getElementById("reset").onclick=()=>{
-cards.forEach(c=>c.status=null);
-reviewMode=false;
-current=0;
-document.getElementById("reviewIndicator").style.display="none";
-show();
+  cards.forEach(c=>c.status=null);
+  reviewMode=false;
+  current=0;
+  document.getElementById("reviewIndicator").style.display="none";
+  show();
 };
 
 document.getElementById("toggleMode").onclick=()=>{
-studyMode = studyMode==="term"?"def":"term";
-document.getElementById("toggleMode").innerText =
-studyMode==="term"?"Mode: Term → Definition":"Mode: Definition → Term";
-show();
+  studyMode = studyMode==="term"?"def":"term";
+  document.getElementById("toggleMode").innerText =
+    studyMode==="term"?"Mode: Term → Definition":"Mode: Definition → Term";
+  show();
 };
 
 /* TEST NAV */
-
 let k=0;
 document.getElementById("nextTerm").onclick=()=>{
-k=(k+1)%cards.length;
-document.getElementById("termPrompt").innerText=cards[k].term;
+  k=(k+1)%cards.length;
+  document.getElementById("termPrompt").innerText=cards[k].term;
 };
-
 document.getElementById("prevTerm").onclick=()=>{
-k=(k-1+cards.length)%cards.length;
-document.getElementById("termPrompt").innerText=cards[k].term;
+  k=(k-1+cards.length)%cards.length;
+  document.getElementById("termPrompt").innerText=cards[k].term;
 };
 
 /* PRINT */
-
 const preview=document.getElementById("preview");
-
 document.getElementById("double").onclick=()=>preview.innerText="Double-Sided Layout";
 document.getElementById("single").onclick=()=>preview.innerText="One-Sided Layout";
 document.getElementById("save").onclick=()=>alert("PDF coming next");
 
 show();
-
 </script>
 
 </body>
