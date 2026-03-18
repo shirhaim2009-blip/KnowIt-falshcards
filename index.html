@@ -2,257 +2,388 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Auto Tag Submission</title>
+<title>Flashcards</title>
 
 <style>
-body { 
-    font-family: 'Segoe UI', sans-serif; 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-    margin: 0;
-    display: flex;
+
+body{
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#667eea,#764ba2);
+margin:0;
+display:flex;
+height:100vh;
 }
 
-/* 🔷 LEFT MENU */
-.sidebar {
-    width: 220px;
-    padding: 20px;
-    background: #ffffff22;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* LAYOUT */
+
+.sidebar{
+width:220px;
+background:#2f3e75;
+color:white;
+display:flex;
+flex-direction:column;
+padding:20px;
+gap:15px;
 }
 
-.menu-btn {
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background: white;
-    color: #333;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: left;
+.sidebar h2{
+margin:0 0 10px 0;
+font-size:20px;
 }
 
-.menu-btn.active {
-    background: #5471c0;
-    color: white;
+.tab-btn{
+background:none;
+border:none;
+color:white;
+text-align:left;
+padding:12px;
+border-radius:10px;
+cursor:pointer;
+font-size:15px;
 }
 
-/* 🔷 MAIN AREA */
-.main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.tab-btn:hover, .tab-btn.active{
+background:#4459a8;
 }
 
-/* 🔷 PAGE SYSTEM */
-.page {
-    display: none;
-    width: 100%;
-    max-width: 500px;
+.main{
+flex:1;
+padding:40px;
+overflow:auto;
 }
 
-.page.active {
-    display: block;
+.tab{
+display:none;
 }
 
-/* 🔷 ORIGINAL STYLES (UNCHANGED) */
-.container { 
-    background: white; 
-    padding: 2rem; 
-    border-radius: 15px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-    width: 100%; 
-    box-sizing: border-box; 
+.tab.active{
+display:block;
 }
 
-h2 { 
-    color: #333; 
-    text-align: center; 
-    margin-top: 0; 
+/* CONTAINERS */
+
+.container{
+background:white;
+padding:30px;
+border-radius:18px;
+box-shadow:0 12px 30px rgba(0,0,0,.25);
+max-width:750px;
+margin:auto;
 }
 
-textarea { 
-    width: 100%; 
-    height: 100px; 
-    padding: 10px; 
-    margin: 10px 0; 
-    border: 1px solid #ddd; 
-    border-radius: 8px; 
-    box-sizing: border-box; 
-    font-size: 16px; 
+/* FLASHCARD */
+
+.flashcard{
+width:100%;
+height:260px;
+background:#f9f9f9;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+perspective:1000px;
+margin:30px 0;
 }
 
-button { 
-    width: 100%; 
-    padding: 12px; 
-    background-color: #5471c0; 
-    color: white; 
-    border: none; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    font-size: 16px; 
-    font-weight: bold; 
+.flashcard-inner{
+width:100%;
+height:100%;
+position:relative;
+transform-style:preserve-3d;
+transition:transform .6s;
 }
 
-button:hover { 
-    opacity: 0.9; 
+.flashcard.flipped .flashcard-inner{
+transform:rotateY(180deg);
 }
 
-#status { 
-    margin-top: 20px; 
-    padding: 15px; 
-    background: #f9f9f9; 
-    border-left: 5px solid #5471c0; 
-    border-radius: 4px; 
-    display: none; 
-    font-size: 14px; 
-    color: #555; 
+.flashcard-front,
+.flashcard-back{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+font-size:28px;
+padding:30px;
+box-sizing:border-box;
+backface-visibility:hidden;
 }
 
-#copyBtn{
-    display:none;
-    margin-top:10px;
+.flashcard-back{
+transform:rotateY(180deg);
 }
+
+.flashcard.correct{border-left:7px solid #4caf50;}
+.flashcard.incorrect{border-left:7px solid #f44336;}
+
+/* BUTTONS */
+
+.buttonRow{
+display:flex;
+flex-wrap:wrap;
+gap:14px;
+justify-content:center;
+}
+
+button{
+width:140px;
+height:44px;
+border:none;
+border-radius:12px;
+background:#5471c0;
+color:white;
+font-weight:600;
+font-size:15px;
+cursor:pointer;
+transition:.2s;
+}
+
+button:hover{
+transform:translateY(-3px);
+background:#405aa0;
+}
+
+#toggleMode{
+width:auto;
+padding:0 18px;
+min-width:200px;
+}
+
+/* TEXT */
+
+#knowledgeTitle{
+font-size:30px;
+text-align:center;
+margin-bottom:6px;
+}
+
+#knowledgeExplain{
+text-align:center;
+color:#555;
+margin-bottom:20px;
+}
+
+#termPrompt{
+font-size:22px;
+font-weight:bold;
+text-align:left;
+margin-bottom:10px;
+}
+
+textarea{
+width:100%;
+height:140px;
+font-size:18px;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+#submitBtn{
+margin-top:14px;
+width:100%;
+background:#764ba2;
+}
+
+.preview{
+height:240px;
+border:1px dashed #ccc;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#777;
+margin-top:20px;
+}
+
+#progress{
+text-align:center;
+margin-bottom:10px;
+}
+
+#reviewIndicator{
+text-align:center;
+color:#c0392b;
+display:none;
+margin-bottom:10px;
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- 🔷 SIDEBAR -->
+<!-- SIDEBAR -->
 <div class="sidebar">
-    <button class="menu-btn active" onclick="showPage('flashcards', this)">Flashcards</button>
-    <button class="menu-btn" onclick="showPage('explain', this)">Explain</button>
-    <button class="menu-btn" onclick="showPage('print', this)">Printing</button>
+<h2>Menu</h2>
+<button class="tab-btn active" onclick="openTab('study')">📚 Study</button>
+<button class="tab-btn" onclick="openTab('test')">🧠 Test</button>
+<button class="tab-btn" onclick="openTab('print')">🖨 Print</button>
 </div>
 
-<!-- 🔷 MAIN -->
+<!-- MAIN CONTENT -->
 <div class="main">
 
-    <!-- 🔷 FLASHCARDS TAB (YOUR ORIGINAL CODE) -->
-    <div id="flashcards" class="page active">
-        <div class="container">
-            <h2>Create Your Flashcard Set:</h2>
+<!-- STUDY TAB -->
+<div id="study" class="tab active">
+<div class="container">
 
-            <form id="autoTagForm">
-                <textarea name="UserInput" placeholder="What would you like to learn today?" required></textarea>
-                <input type="hidden" name="Tag" id="hiddenTagField">
-                <button type="submit">Make It</button>
-            </form>
+<div class="buttonRow" style="justify-content:flex-end;">
+<button id="toggleMode">Mode: Term → Definition</button>
+</div>
 
-            <div id="status">Sending...</div>
-            <button id="copyBtn">Copy Flashcard Link</button>
-        </div>
-    </div>
+<div id="reviewIndicator">Reviewing Incorrect Cards</div>
+<div id="progress"></div>
 
-    <!-- 🔷 EXPLAIN TAB -->
-    <div id="explain" class="page">
-        <div class="container">
-            <h2>Explain in Your Own Words</h2>
+<div class="flashcard" id="flashcard">
+<div class="flashcard-inner">
+<div class="flashcard-front" id="front"></div>
+<div class="flashcard-back" id="back"></div>
+</div>
+</div>
 
-            <textarea id="explainInput" placeholder="Enter a concept..."></textarea>
-            <button onclick="generateExplanation()">Explain</button>
+<div class="buttonRow">
+<button id="prev">← Prev</button>
+<button id="incorrect">✖</button>
+<button id="correct">✔</button>
+<button id="next">Next →</button>
+<button id="review">Review</button>
+<button id="reset">Reset</button>
+</div>
 
-            <div id="explainOutput" style="margin-top:15px;"></div>
-        </div>
-    </div>
+</div>
+</div>
 
-    <!-- 🔷 PRINT TAB -->
-    <div id="print" class="page">
-        <div class="container">
-            <h2>Print Flashcards</h2>
+<!-- TEST TAB -->
+<div id="test" class="tab">
+<div class="container">
 
-            <p>Click below to print your flashcards.</p>
-            <button onclick="window.print()">Print</button>
-        </div>
-    </div>
+<div id="knowledgeTitle">Test Your Knowledge</div>
+<div id="knowledgeExplain">
+Explain the term in your own words and submit it for feedback.
+</div>
+
+<div id="termPrompt"></div>
+
+<textarea placeholder="Write your explanation here..."></textarea>
+
+<div class="buttonRow" style="margin-top:14px;">
+<button id="prevTerm">← Prev</button>
+<button id="nextTerm">Next →</button>
+</div>
+
+<button id="submitBtn">Submit</button>
+
+<div style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
+Response will appear here.
+</div>
+
+</div>
+</div>
+
+<!-- PRINT TAB -->
+<div id="print" class="tab">
+<div class="container">
+
+<div class="buttonRow">
+<button id="double">Double Sided</button>
+<button id="single">One Sided</button>
+<button id="save">Save PDF</button>
+</div>
+
+<div class="preview" id="preview">
+Double-Sided Layout Preview
+</div>
+
+</div>
+</div>
 
 </div>
 
 <script>
 
-// 🔷 TAB SWITCHING
-function showPage(pageId, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
+/* TAB SWITCHING */
 
-    document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+function openTab(tabId){
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+document.getElementById(tabId).classList.add("active");
+
+document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+event.target.classList.add("active");
 }
 
-// 🔷 ORIGINAL FLASHCARD LOGIC (UNCHANGED)
-const form = document.getElementById('autoTagForm');
-const statusDiv = document.getElementById('status');
-const tagField = document.getElementById('hiddenTagField');
-const copyBtn = document.getElementById('copyBtn');
+/* FLASHCARD DATA */
 
-const resultLink = "https://shirhaim2009-blip.github.io/KnowIt-falshcards/";
+let cards=[
+{term:"Lusitania",def:"British ship sunk in WWI",status:null},
+{term:"Zimmermann Note",def:"Germany asked Mexico to fight US",status:null},
+{term:"Treaty of Versailles",def:"Ended WWI",status:null}
+];
 
-const scriptURL = 'https://script.google.com/macros/s/AKfycbzBNCrkSH4B3HFu30eWIzbbWjyVLYVTSox5M7NdxGYE6Qr95jfrQ6tmnVGQd3QofgA1/exec';
+let current=0;
+let studyMode="term";
+let reviewMode=false;
 
-form.addEventListener('submit', e => {
+/* FUNCTIONS */
 
-    e.preventDefault();
+const front=document.getElementById("front");
+const back=document.getElementById("back");
+const flashcard=document.getElementById("flashcard");
 
-    copyBtn.innerText = "Copy Flashcard Link";
-    copyBtn.style.display = "none";
+function show(){
+let c=cards[current];
 
-    const uniqueId = 'ID-' + Date.now();
-    tagField.value = uniqueId;
+front.innerText = (studyMode==="term") ? c.term : c.def;
+back.innerText = (studyMode==="term") ? c.def : c.term;
 
-    statusDiv.style.display = 'block';
-    statusDiv.innerText = 'Connecting to OpenAI... Please stay on this page.';
+flashcard.classList.remove("flipped","correct","incorrect");
+if(c.status==="correct") flashcard.classList.add("correct");
+if(c.status==="incorrect") flashcard.classList.add("incorrect");
 
-    fetch(scriptURL, { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: new FormData(form)
-    })
-    .then(() => {
+document.getElementById("termPrompt").innerText = c.term;
 
-        statusDiv.innerText = "Success! Your flashcard set is ready! Copy the link.";
-        copyBtn.style.display = "block";
-        form.reset();
-
-    })
-    .catch(err => {
-
-        statusDiv.innerText = 'Error! Check your internet or Script URL.';
-        console.error(err);
-
-    });
-
-});
-
-copyBtn.addEventListener("click", copyLink);
-
-function copyLink(){
-
-    const tempInput = document.createElement("textarea");
-    tempInput.value = resultLink;
-
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempInput);
-
-    copyBtn.innerText = "Link Copied!";
+document.getElementById("progress").innerText =
+`Card ${current+1}/${cards.length}`;
 }
 
-// 🔷 EXPLAIN (simple placeholder)
-function generateExplanation() {
-    const input = document.getElementById("explainInput").value;
-    const output = document.getElementById("explainOutput");
+flashcard.onclick=()=>flashcard.classList.toggle("flipped");
 
-    if (!input) {
-        output.innerText = "Please enter something.";
-        return;
-    }
+document.getElementById("next").onclick=()=>{current=(current+1)%cards.length;show();}
+document.getElementById("prev").onclick=()=>{current=(current-1+cards.length)%cards.length;show();}
 
-    output.innerText = "In simple terms: " + input + " explained clearly.";
-}
+document.getElementById("correct").onclick=()=>{cards[current].status="correct";show();}
+document.getElementById("incorrect").onclick=()=>{cards[current].status="incorrect";show();}
+
+document.getElementById("reset").onclick=()=>{
+cards.forEach(c=>c.status=null);
+show();
+};
+
+document.getElementById("toggleMode").onclick=()=>{
+studyMode = studyMode==="term"?"def":"term";
+document.getElementById("toggleMode").innerText =
+studyMode==="term"?"Mode: Term → Definition":"Mode: Definition → Term";
+show();
+};
+
+/* TEST NAV */
+
+let k=0;
+document.getElementById("nextTerm").onclick=()=>{k=(k+1)%cards.length;document.getElementById("termPrompt").innerText=cards[k].term;}
+document.getElementById("prevTerm").onclick=()=>{k=(k-1+cards.length)%cards.length;document.getElementById("termPrompt").innerText=cards[k].term;}
+
+/* PRINT PREVIEW */
+
+document.getElementById("double").onclick=()=>{preview.innerText="Double-Sided Layout";}
+document.getElementById("single").onclick=()=>{preview.innerText="One-Sided Layout";}
+document.getElementById("save").onclick=()=>alert("PDF coming soon");
+
+show();
 
 </script>
 
