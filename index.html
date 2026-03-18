@@ -2,412 +2,189 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Flashcards</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KnowIt Study Tool</title>
 
 <style>
-
-body{
-font-family:'Segoe UI',sans-serif;
-background:linear-gradient(135deg,#667eea,#764ba2);
-margin:0;
-padding:50px 20px;
-display:flex;
-justify-content:center;
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    margin: 0;
 }
 
-.page{
-width:750px;
-display:flex;
-flex-direction:column;
-gap:45px;
+/* 🔷 NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: center;
+    background: #ffffff22;
+    padding: 10px;
+    gap: 10px;
 }
 
-.container{
-background:white;
-padding:30px;
-border-radius:18px;
-box-shadow:0 12px 30px rgba(0,0,0,.25);
+.nav-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-#reviewIndicator{
-text-align:center;
-color:#c0392b;
-font-weight:bold;
-margin-bottom:10px;
-display:none;
+.nav-btn.active {
+    background: #5471c0;
+    color: white;
 }
 
-/* progress tracker */
-
-#progress{
-text-align:center;
-margin-bottom:15px;
-font-size:15px;
-color:#555;
+/* 🔷 PAGE WRAPPER */
+.page {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
 }
 
-/* flashcard */
-
-.flashcard{
-width:100%;
-height:260px;
-background:#f9f9f9;
-border-radius:14px;
-box-shadow:0 10px 25px rgba(0,0,0,.2);
-display:flex;
-justify-content:center;
-align-items:center;
-cursor:pointer;
-perspective:1000px;
-margin-bottom:30px;
+.page.active {
+    display: flex;
 }
 
-.flashcard-inner{
-width:100%;
-height:100%;
-position:relative;
-transform-style:preserve-3d;
-transition:transform .6s;
+/* 🔷 CARD */
+.container { 
+    background: white; 
+    padding: 2rem; 
+    border-radius: 15px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+    width: 100%; 
+    max-width: 500px;
 }
 
-.flashcard.flipped .flashcard-inner{
-transform:rotateY(180deg);
+h2 { text-align: center; }
+
+textarea { 
+    width: 100%; 
+    height: 100px; 
+    margin: 10px 0; 
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
 }
 
-.flashcard-front,
-.flashcard-back{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-display:flex;
-justify-content:center;
-align-items:center;
-text-align:center;
-font-size:28px;
-padding:30px;
-box-sizing:border-box;
-backface-visibility:hidden;
+button { 
+    width: 100%; 
+    padding: 12px; 
+    background: #5471c0; 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.flashcard-back{
-transform:rotateY(180deg);
+#copyBtn { display: none; margin-top: 10px; }
+
+#status {
+    display: none;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f4f4f4;
+    border-left: 5px solid #5471c0;
 }
-
-.flashcard.correct{border-left:7px solid #4caf50;}
-.flashcard.incorrect{border-left:7px solid #f44336;}
-
-.buttonRow{
-display:flex;
-flex-wrap:wrap;
-gap:14px;
-justify-content:center;
-}
-
-button{
-width:140px;
-height:44px;
-border:none;
-border-radius:12px;
-background:#5471c0;
-color:white;
-font-weight:600;
-font-size:15px;
-cursor:pointer;
-transition:.2s;
-}
-
-button:hover{
-transform:translateY(-3px);
-background:#405aa0;
-}
-
-/* Only the toggle button is wider for text */
-#toggleMode{
-width:auto;
-padding:0 18px;
-min-width:200px;
-}
-
-#knowledgeTitle{
-font-size:30px;
-text-align:center;
-margin-bottom:6px;
-}
-
-#knowledgeExplain{
-text-align:center;
-color:#555;
-margin-bottom:20px;
-}
-
-#termPrompt{
-font-size:22px;
-font-weight:bold;
-text-align:left;
-margin-bottom:10px;
-}
-
-textarea{
-width:100%;
-height:140px;
-font-size:18px;
-padding:12px;
-border-radius:10px;
-border:1px solid #ddd;
-}
-
-#submitBtn{
-margin-top:14px;
-width:100%;
-background:#764ba2;
-}
-
-#response{
-margin-top:12px;
-padding:12px;
-background:#f4f4f4;
-border-radius:10px;
-}
-
-.preview{
-height:240px;
-border:1px dashed #ccc;
-border-radius:10px;
-display:flex;
-align-items:center;
-justify-content:center;
-color:#777;
-margin-top:20px;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="page">
-
-<div class="container">
-
-<!-- Toggle Mode Button -->
-<div class="buttonRow" style="justify-content:flex-end;margin-bottom:10px;">
-    <button id="toggleMode">Mode: Term → Definition</button>
+<!-- 🔷 NAVIGATION -->
+<div class="navbar">
+    <button class="nav-btn active" onclick="showPage('flashcards')">Flashcards</button>
+    <button class="nav-btn" onclick="showPage('explain')">Explain It</button>
+    <button class="nav-btn" onclick="showPage('print')">Printing</button>
 </div>
 
-<div id="reviewIndicator">Reviewing Incorrect Cards</div>
+<!-- 🔷 FLASHCARDS PAGE -->
+<div id="flashcards" class="page active">
+    <div class="container">
+        <h2>Create Flashcards</h2>
 
-<div id="progress"></div>
+        <form id="flashForm">
+            <textarea placeholder="What do you want flashcards on?" required></textarea>
+            <button type="submit">Generate</button>
+        </form>
 
-<div class="flashcard" id="flashcard">
-<div class="flashcard-inner">
-
-<div class="flashcard-front" id="front"></div>
-<div class="flashcard-back" id="back"></div>
-
-</div>
-</div>
-
-<div class="buttonRow">
-<button id="prev">← Previous</button>
-<button id="incorrect">✖ Incorrect</button>
-<button id="correct">✔ Correct</button>
-<button id="next">Next →</button>
-<button id="review">Review Wrong</button>
-<button id="reset">Reset</button>
+        <div id="status">Loading...</div>
+        <button id="copyBtn">Copy Flashcard Link</button>
+    </div>
 </div>
 
+<!-- 🔷 EXPLAIN PAGE -->
+<div id="explain" class="page">
+    <div class="container">
+        <h2>Explain in Your Own Words</h2>
+
+        <textarea id="explainInput" placeholder="Enter a concept..."></textarea>
+        <button onclick="generateExplanation()">Explain</button>
+
+        <div id="explainOutput" style="margin-top:15px;"></div>
+    </div>
 </div>
 
+<!-- 🔷 PRINT PAGE -->
+<div id="print" class="page">
+    <div class="container">
+        <h2>Print Flashcards</h2>
 
-<div class="container">
-
-<div id="knowledgeTitle">Test Your Knowledge</div>
-
-<div id="knowledgeExplain">
-Explain the term in your own words and submit it for feedback.
-</div>
-
-<div id="termPrompt"></div>
-
-<textarea id="answer" placeholder="Write your explanation here..."></textarea>
-
-<div class="buttonRow" style="margin-top:14px;">
-<button id="prevTerm">← Previous Term</button>
-<button id="nextTerm">Next Term →</button>
-</div>
-
-<button id="submitBtn">Submit</button>
-
-<div id="response">
-Response from OpenAI will appear here.
-</div>
-
-</div>
-
-
-<div class="container">
-
-<div class="buttonRow">
-<button id="double">Double Sided</button>
-<button id="single">One Sided</button>
-<button id="save">Save PDF</button>
-</div>
-
-<div class="preview" id="preview">
-Double-Sided Layout Preview
-</div>
-
-</div>
-
+        <p>Click below to print your flashcards.</p>
+        <button onclick="window.print()">Print</button>
+    </div>
 </div>
 
 <script>
 
-let cards=[
-{term:"Lusitania",def:"British passenger ship sunk by a German U-boat in 1915.",status:null},
-{term:"Zimmermann Note",def:"German proposal asking Mexico to join WWI against the U.S.",status:null},
-{term:"Treaty of Versailles",def:"1919 treaty that officially ended World War I.",status:null}
-];
+// 🔷 TAB SWITCHING
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
 
-let current=0;
-let reviewMode=false;
-let studyMode="term"; // "term"=Term→Definition, "def"=Definition→Term
-
-const flashcard=document.getElementById("flashcard");
-const front=document.getElementById("front");
-const back=document.getElementById("back");
-const prompt=document.getElementById("termPrompt");
-const progress=document.getElementById("progress");
-
-/* progress tracker */
-
-function updateProgress(){
-    let correct=cards.filter(c=>c.status==="correct").length;
-    let incorrect=cards.filter(c=>c.status==="incorrect").length;
-    progress.innerText=`Card ${current+1} / ${cards.length}   |   ✔ ${correct}   ✖ ${incorrect}`;
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
 }
 
-/* show card */
+// 🔷 FLASHCARD LOGIC
+const form = document.getElementById('flashForm');
+const statusDiv = document.getElementById('status');
+const copyBtn = document.getElementById('copyBtn');
 
-function show(){
-    let card=cards[current];
+const resultLink = "https://shirhaim2009-blip.github.io/KnowIt-falshcards/";
 
-    if(studyMode==="term"){
-        front.innerText=card.term;
-        back.innerText=card.def;
-    }else{
-        front.innerText=card.def;
-        back.innerText=card.term;
-    }
+form.addEventListener('submit', e => {
+    e.preventDefault();
 
-    prompt.innerText=card.term;
+    statusDiv.style.display = 'block';
+    statusDiv.innerText = 'Generating flashcards...';
 
-    flashcard.classList.remove("flipped","correct","incorrect");
+    setTimeout(() => {
+        statusDiv.innerText = 'Done! Copy your link.';
+        copyBtn.style.display = 'block';
+    }, 1500);
+});
 
-    if(card.status==="correct") flashcard.classList.add("correct");
-    if(card.status==="incorrect") flashcard.classList.add("incorrect");
+copyBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(resultLink);
+    copyBtn.innerText = "Copied!";
+});
 
-    updateProgress();
-}
+// 🔷 EXPLAIN FEATURE
+function generateExplanation() {
+    const input = document.getElementById("explainInput").value;
+    const output = document.getElementById("explainOutput");
 
-/* flip */
-
-flashcard.onclick=()=>flashcard.classList.toggle("flipped");
-
-/* navigation */
-
-document.getElementById("next").onclick=()=>{
-    if(reviewMode){
-        let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
-        let i=wrongIndexes.indexOf(current);
-        current=wrongIndexes[(i+1)%wrongIndexes.length];
-    }else{
-        current=(current+1)%cards.length;
-    }
-    show();
-};
-
-document.getElementById("prev").onclick=()=>{
-    if(reviewMode){
-        let wrongIndexes=cards.map((c,i)=>c.status==="incorrect"?i:null).filter(i=>i!==null);
-        let i=wrongIndexes.indexOf(current);
-        current=wrongIndexes[(i-1+wrongIndexes.length)%wrongIndexes.length];
-    }else{
-        current=(current-1+cards.length)%cards.length;
-    }
-    show();
-};
-
-/* mark correct */
-
-document.getElementById("correct").onclick=()=>{
-    cards[current].status="correct";
-    show();
-};
-
-/* mark incorrect */
-
-document.getElementById("incorrect").onclick=()=>{
-    cards[current].status="incorrect";
-    show();
-};
-
-/* review wrong */
-
-document.getElementById("review").onclick=()=>{
-    let wrong=cards.findIndex(c=>c.status==="incorrect");
-    if(wrong===-1){
-        alert("No incorrect cards yet!");
+    if (!input) {
+        output.innerText = "Please enter something.";
         return;
     }
-    reviewMode=true;
-    current=wrong;
-    document.getElementById("reviewIndicator").style.display="block";
-    show();
-};
 
-/* reset */
-
-document.getElementById("reset").onclick=()=>{
-    cards.forEach(c=>c.status=null);
-    reviewMode=false;
-    current=0;
-    document.getElementById("reviewIndicator").style.display="none";
-    show();
-};
-
-/* knowledge test navigation */
-
-let knowledgeIndex=0;
-document.getElementById("nextTerm").onclick=()=>{
-    knowledgeIndex=(knowledgeIndex+1)%cards.length;
-    prompt.innerText=cards[knowledgeIndex].term;
-};
-document.getElementById("prevTerm").onclick=()=>{
-    knowledgeIndex=(knowledgeIndex-1+cards.length)%cards.length;
-    prompt.innerText=cards[knowledgeIndex].term;
-};
-
-/* toggle study mode */
-
-document.getElementById("toggleMode").onclick=()=>{
-    studyMode = (studyMode==="term") ? "def" : "term";
-    document.getElementById("toggleMode").innerText = 
-        (studyMode==="term") ? "Mode: Term → Definition" : "Mode: Definition → Term";
-    show();
-};
-
-/* PDF preview buttons */
-
-const preview=document.getElementById("preview");
-
-document.getElementById("double").onclick=()=>{ preview.innerText="Double-Sided Layout Preview"; };
-document.getElementById("single").onclick=()=>{ preview.innerText="One-Sided Layout Preview"; };
-document.getElementById("save").onclick=()=>{ alert("PDF export coming next."); };
-
-show();
+    // simple placeholder logic (replace with API later)
+    output.innerText = "In simple terms: " + input + " means breaking it down into easy-to-understand ideas.";
+}
 
 </script>
 
