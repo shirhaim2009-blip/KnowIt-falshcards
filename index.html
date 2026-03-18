@@ -14,7 +14,7 @@ display:flex;
 height:100vh;
 }
 
-/* LAYOUT */
+/* SIDEBAR */
 
 .sidebar{
 width:220px;
@@ -46,6 +46,8 @@ font-size:15px;
 background:#4459a8;
 }
 
+/* MAIN */
+
 .main{
 flex:1;
 padding:40px;
@@ -60,7 +62,7 @@ display:none;
 display:block;
 }
 
-/* CONTAINERS */
+/* CONTAINER */
 
 .container{
 background:white;
@@ -138,7 +140,7 @@ border-radius:12px;
 background:#5471c0;
 color:white;
 font-weight:600;
-font-size:15px;
+font-size:14px;
 cursor:pointer;
 transition:.2s;
 }
@@ -151,7 +153,7 @@ background:#405aa0;
 #toggleMode{
 width:auto;
 padding:0 18px;
-min-width:200px;
+min-width:220px;
 }
 
 /* TEXT */
@@ -201,9 +203,13 @@ color:#777;
 margin-top:20px;
 }
 
+/* PROGRESS */
+
 #progress{
 text-align:center;
 margin-bottom:10px;
+font-size:15px;
+color:#555;
 }
 
 #reviewIndicator{
@@ -211,6 +217,7 @@ text-align:center;
 color:#c0392b;
 display:none;
 margin-bottom:10px;
+font-weight:bold;
 }
 
 </style>
@@ -221,15 +228,15 @@ margin-bottom:10px;
 <!-- SIDEBAR -->
 <div class="sidebar">
 <h2>Menu</h2>
-<button class="tab-btn active" onclick="openTab('study')">📚 Study</button>
-<button class="tab-btn" onclick="openTab('test')">🧠 Test</button>
-<button class="tab-btn" onclick="openTab('print')">🖨 Print</button>
+<button class="tab-btn active" onclick="openTab('study')">Flashcards</button>
+<button class="tab-btn" onclick="openTab('test')">Test Your Knowledge</button>
+<button class="tab-btn" onclick="openTab('print')">Print</button>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN -->
 <div class="main">
 
-<!-- STUDY TAB -->
+<!-- FLASHCARDS TAB -->
 <div id="study" class="tab active">
 <div class="container">
 
@@ -248,11 +255,11 @@ margin-bottom:10px;
 </div>
 
 <div class="buttonRow">
-<button id="prev">← Prev</button>
-<button id="incorrect">✖</button>
-<button id="correct">✔</button>
-<button id="next">Next →</button>
-<button id="review">Review</button>
+<button id="prev">Previous</button>
+<button id="incorrect">Incorrect</button>
+<button id="correct">Correct</button>
+<button id="next">Next</button>
+<button id="review">Review Wrong</button>
 <button id="reset">Reset</button>
 </div>
 
@@ -273,8 +280,8 @@ Explain the term in your own words and submit it for feedback.
 <textarea placeholder="Write your explanation here..."></textarea>
 
 <div class="buttonRow" style="margin-top:14px;">
-<button id="prevTerm">← Prev</button>
-<button id="nextTerm">Next →</button>
+<button id="prevTerm">Previous Term</button>
+<button id="nextTerm">Next Term</button>
 </div>
 
 <button id="submitBtn">Submit</button>
@@ -307,7 +314,7 @@ Double-Sided Layout Preview
 
 <script>
 
-/* TAB SWITCHING */
+/* TAB SWITCH */
 
 function openTab(tabId){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -317,7 +324,7 @@ document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
 event.target.classList.add("active");
 }
 
-/* FLASHCARD DATA */
+/* DATA */
 
 let cards=[
 {term:"Lusitania",def:"British ship sunk in WWI",status:null},
@@ -327,13 +334,14 @@ let cards=[
 
 let current=0;
 let studyMode="term";
-let reviewMode=false;
 
-/* FUNCTIONS */
+/* ELEMENTS */
 
 const front=document.getElementById("front");
 const back=document.getElementById("back");
 const flashcard=document.getElementById("flashcard");
+
+/* SHOW */
 
 function show(){
 let c=cards[current];
@@ -347,9 +355,15 @@ if(c.status==="incorrect") flashcard.classList.add("incorrect");
 
 document.getElementById("termPrompt").innerText = c.term;
 
+/* COUNTERS */
+let correctCount = cards.filter(c=>c.status==="correct").length;
+let incorrectCount = cards.filter(c=>c.status==="incorrect").length;
+
 document.getElementById("progress").innerText =
-`Card ${current+1}/${cards.length}`;
+`Card ${current+1}/${cards.length} | Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
 }
+
+/* EVENTS */
 
 flashcard.onclick=()=>flashcard.classList.toggle("flipped");
 
@@ -377,7 +391,9 @@ let k=0;
 document.getElementById("nextTerm").onclick=()=>{k=(k+1)%cards.length;document.getElementById("termPrompt").innerText=cards[k].term;}
 document.getElementById("prevTerm").onclick=()=>{k=(k-1+cards.length)%cards.length;document.getElementById("termPrompt").innerText=cards[k].term;}
 
-/* PRINT PREVIEW */
+/* PRINT */
+
+const preview=document.getElementById("preview");
 
 document.getElementById("double").onclick=()=>{preview.innerText="Double-Sided Layout";}
 document.getElementById("single").onclick=()=>{preview.innerText="One-Sided Layout";}
