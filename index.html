@@ -78,15 +78,22 @@ body{
   transform:translateX(0);
 }
 
+/* MENU BUTTONS - VERTICALLY CENTERED */
 .tab-btn{
   background:none;
   border:none;
   color:#444;
-  text-align:left;
+  text-align:left; /* keep left-aligned */
   padding:12px 10px;
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
+
+  /* vertical center fix */
+  display:flex;
+  align-items:center;  /* vertically centers content */
+  gap:8px;
+
   opacity:0;
   transform:translateX(-20px);
   transition:all 0.3s ease;
