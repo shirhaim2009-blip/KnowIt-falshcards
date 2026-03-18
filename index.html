@@ -255,12 +255,12 @@ font-weight:bold;
 </div>
 
 <div class="buttonRow">
-<button id="prev">Previous</button>
-<button id="incorrect">Incorrect</button>
-<button id="correct">Correct</button>
-<button id="next">Next</button>
-<button id="review">Review Wrong</button>
-<button id="reset">Reset</button>
+<button id="prev">← Previous</button>
+<button id="incorrect">✖ Incorrect</button>
+<button id="correct">✔ Correct</button>
+<button id="next">Next →</button>
+<button id="review">⟳ Review Wrong</button>
+<button id="reset">↺ Restart</button>
 </div>
 
 </div>
@@ -280,8 +280,8 @@ Explain the term in your own words and submit it for feedback.
 <textarea placeholder="Write your explanation here..."></textarea>
 
 <div class="buttonRow" style="margin-top:14px;">
-<button id="prevTerm">Previous Term</button>
-<button id="nextTerm">Next Term</button>
+<button id="prevTerm">← Previous Term</button>
+<button id="nextTerm">Next Term →</button>
 </div>
 
 <button id="submitBtn">Submit</button>
@@ -298,9 +298,9 @@ Response will appear here.
 <div class="container">
 
 <div class="buttonRow">
-<button id="double">Double Sided</button>
-<button id="single">One Sided</button>
-<button id="save">Save PDF</button>
+<button id="double">⇄ Double Sided</button>
+<button id="single">☰ One Sided</button>
+<button id="save">⬇ Save PDF</button>
 </div>
 
 <div class="preview" id="preview">
@@ -355,7 +355,6 @@ if(c.status==="incorrect") flashcard.classList.add("incorrect");
 
 document.getElementById("termPrompt").innerText = c.term;
 
-/* COUNTERS */
 let correctCount = cards.filter(c=>c.status==="correct").length;
 let incorrectCount = cards.filter(c=>c.status==="incorrect").length;
 
