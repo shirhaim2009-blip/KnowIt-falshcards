@@ -112,10 +112,11 @@ body{
   padding:40px;
   overflow:auto;
   margin-left:0;
-  transition:margin-left 0.5s ease;
+  transition:margin-left 0.5s ease, margin-top 0.3s ease;
 }
 .main.shifted{
   margin-left:240px;
+  margin-top:70px; /* move down when menu open to avoid overlap */
 }
 
 /* TABS */
@@ -218,6 +219,10 @@ button:hover{
 #knowledgeTitle{
   font-size:32px;
   text-align:center;
+  display:flex;
+  align-items:center; /* vertical center */
+  justify-content:center;
+  height:60px;
   margin-bottom:6px;
 }
 
