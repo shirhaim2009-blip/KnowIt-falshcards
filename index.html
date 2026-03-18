@@ -3,35 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KnowIt Study Tool</title>
+<title>Auto Tag Submission</title>
 
 <style>
 body { 
     font-family: 'Segoe UI', sans-serif; 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
     margin: 0;
     display: flex;
 }
 
-/* 🔷 SIDEBAR */
+/* 🔷 LEFT MENU */
 .sidebar {
     width: 220px;
-    background: #ffffff22;
-    backdrop-filter: blur(10px);
-    height: 100vh;
     padding: 20px;
-    box-sizing: border-box;
+    background: #ffffff22;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .menu-btn {
-    width: 100%;
-    margin-bottom: 10px;
     padding: 12px;
     border: none;
     border-radius: 8px;
     background: white;
+    color: #333;
     font-weight: bold;
     cursor: pointer;
+    text-align: left;
 }
 
 .menu-btn.active {
@@ -50,25 +50,28 @@ body {
 /* 🔷 PAGE SYSTEM */
 .page {
     display: none;
+    width: 100%;
+    max-width: 500px;
 }
 
 .page.active {
     display: block;
 }
 
-/* 🔷 ORIGINAL CARD STYLE */
+/* 🔷 ORIGINAL STYLES (UNCHANGED) */
 .container { 
     background: white; 
     padding: 2rem; 
     border-radius: 15px; 
     box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
     width: 100%; 
-    max-width: 500px; 
+    box-sizing: border-box; 
 }
 
 h2 { 
-    text-align: center;
-    margin-top: 0;
+    color: #333; 
+    text-align: center; 
+    margin-top: 0; 
 }
 
 textarea { 
@@ -76,9 +79,10 @@ textarea {
     height: 100px; 
     padding: 10px; 
     margin: 10px 0; 
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 16px;
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    box-sizing: border-box; 
+    font-size: 16px; 
 }
 
 button { 
@@ -98,17 +102,19 @@ button:hover {
 }
 
 #status { 
-    margin-top: 15px; 
-    padding: 10px; 
+    margin-top: 20px; 
+    padding: 15px; 
     background: #f9f9f9; 
     border-left: 5px solid #5471c0; 
     border-radius: 4px; 
     display: none; 
+    font-size: 14px; 
+    color: #555; 
 }
 
-#copyBtn {
-    display: none;
-    margin-top: 10px;
+#copyBtn{
+    display:none;
+    margin-top:10px;
 }
 </style>
 </head>
@@ -122,16 +128,17 @@ button:hover {
     <button class="menu-btn" onclick="showPage('print', this)">Printing</button>
 </div>
 
-<!-- 🔷 MAIN CONTENT -->
+<!-- 🔷 MAIN -->
 <div class="main">
 
-    <!-- FLASHCARDS -->
+    <!-- 🔷 FLASHCARDS TAB (YOUR ORIGINAL CODE) -->
     <div id="flashcards" class="page active">
         <div class="container">
-            <h2>Create Your Flashcard Set</h2>
+            <h2>Create Your Flashcard Set:</h2>
 
             <form id="autoTagForm">
                 <textarea name="UserInput" placeholder="What would you like to learn today?" required></textarea>
+                <input type="hidden" name="Tag" id="hiddenTagField">
                 <button type="submit">Make It</button>
             </form>
 
@@ -140,7 +147,7 @@ button:hover {
         </div>
     </div>
 
-    <!-- EXPLAIN -->
+    <!-- 🔷 EXPLAIN TAB -->
     <div id="explain" class="page">
         <div class="container">
             <h2>Explain in Your Own Words</h2>
@@ -152,7 +159,7 @@ button:hover {
         </div>
     </div>
 
-    <!-- PRINT -->
+    <!-- 🔷 PRINT TAB -->
     <div id="print" class="page">
         <div class="container">
             <h2>Print Flashcards</h2>
@@ -166,7 +173,7 @@ button:hover {
 
 <script>
 
-// 🔷 SIDEBAR NAVIGATION
+// 🔷 TAB SWITCHING
 function showPage(pageId, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
@@ -175,35 +182,66 @@ function showPage(pageId, btn) {
     btn.classList.add('active');
 }
 
-// 🔷 FLASHCARD LOGIC (your original)
+// 🔷 ORIGINAL FLASHCARD LOGIC (UNCHANGED)
 const form = document.getElementById('autoTagForm');
 const statusDiv = document.getElementById('status');
+const tagField = document.getElementById('hiddenTagField');
 const copyBtn = document.getElementById('copyBtn');
 
 const resultLink = "https://shirhaim2009-blip.github.io/KnowIt-falshcards/";
+
+const scriptURL = 'https://script.google.com/macros/s/AKfycbzBNCrkSH4B3HFu30eWIzbbWjyVLYVTSox5M7NdxGYE6Qr95jfrQ6tmnVGQd3QofgA1/exec';
 
 form.addEventListener('submit', e => {
 
     e.preventDefault();
 
+    copyBtn.innerText = "Copy Flashcard Link";
     copyBtn.style.display = "none";
 
+    const uniqueId = 'ID-' + Date.now();
+    tagField.value = uniqueId;
+
     statusDiv.style.display = 'block';
-    statusDiv.innerText = 'Generating flashcards...';
+    statusDiv.innerText = 'Connecting to OpenAI... Please stay on this page.';
 
-    setTimeout(() => {
-        statusDiv.innerText = "Success! Copy your link.";
+    fetch(scriptURL, { 
+        method: 'POST', 
+        mode: 'no-cors', 
+        body: new FormData(form)
+    })
+    .then(() => {
+
+        statusDiv.innerText = "Success! Your flashcard set is ready! Copy the link.";
         copyBtn.style.display = "block";
-    }, 1500);
+        form.reset();
+
+    })
+    .catch(err => {
+
+        statusDiv.innerText = 'Error! Check your internet or Script URL.';
+        console.error(err);
+
+    });
 
 });
 
-copyBtn.addEventListener("click", () => {
-    navigator.clipboard.writeText(resultLink);
-    copyBtn.innerText = "Copied!";
-});
+copyBtn.addEventListener("click", copyLink);
 
-// 🔷 EXPLAIN
+function copyLink(){
+
+    const tempInput = document.createElement("textarea");
+    tempInput.value = resultLink;
+
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+
+    copyBtn.innerText = "Link Copied!";
+}
+
+// 🔷 EXPLAIN (simple placeholder)
 function generateExplanation() {
     const input = document.getElementById("explainInput").value;
     const output = document.getElementById("explainOutput");
@@ -213,7 +251,7 @@ function generateExplanation() {
         return;
     }
 
-    output.innerText = "In simple terms: " + input + " means explaining it clearly and simply.";
+    output.innerText = "In simple terms: " + input + " explained clearly.";
 }
 
 </script>
