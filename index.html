@@ -50,7 +50,7 @@ body{
   box-shadow:2px 0 12px rgba(0,0,0,0.1);
   display:flex;
   flex-direction:column;
-  padding:20px;
+  padding: 100px 20px 20px 20px; /* top padding increased to move contents down */
   gap:10px;
   transition:left 0.5s ease, opacity 0.3s ease;
   opacity:0;
@@ -83,13 +83,12 @@ body{
   background:none;
   border:none;
   color:#444;
-  text-align:left; /* keep left-aligned */
+  text-align:left;
   padding:12px 10px;
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
 
-  /* vertical center fix */
   display:flex;
   align-items:center;  /* vertically centers content */
   gap:8px;
@@ -119,12 +118,12 @@ body{
   padding:40px;
   overflow:auto;
   margin-left:0;
-  margin-top:20px; /* default top margin */
+  margin-top:20px;
   transition:margin-left 0.5s ease, margin-top 0.3s ease;
 }
 .main.shifted{
   margin-left:240px;
-  margin-top:120px; /* moved down more to avoid menu button overlap */
+  margin-top:140px; /* moved down more to avoid menu button overlap */
 }
 
 /* TABS */
@@ -226,8 +225,8 @@ button:hover{
 /* TEXT */
 #knowledgeTitle{
   font-size:32px;
-  text-align:left; /* left-aligned */
-  padding-top:18px;  /* vertical centering */
+  text-align:left;
+  padding-top:18px;
   padding-bottom:18px;
   margin-bottom:6px;
   background:#f4f4f4;
