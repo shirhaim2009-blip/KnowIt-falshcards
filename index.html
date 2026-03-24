@@ -115,7 +115,7 @@ async function loadCards() {
     }
 
     try {
-        const res = await fetch("YOUR_GOOGLE_SCRIPT_URL_HERE");
+        const res = await fetch("https://script.google.com/macros/s/AKfycbx7Mt6VI0htpVEWyPxtB99ESZmOYftSwOAuAFRp8Rs5K2rIJgkgN1sAYYQ9PawotbKi/exec");
         const data = await res.json();
 
         cards = data.filter(item => item.tag === setId);
