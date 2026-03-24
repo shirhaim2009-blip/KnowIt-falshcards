@@ -95,6 +95,17 @@ let current = 0;
 let correct = 0;
 let wrong = 0;
 
+async function loadCards() {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbwwWbTURuUITfceDVqvfCTu4oBTjMQR1LjVhMEMQ4eJ_CBGq0LKkC8AOvgA4lmuDArE/exec");
+    const data = await res.json();
+
+    cards = data.filter(card => card.tag === setId);
+
+    if (cards.length === 0) {
+        alert("No flashcards found.");
+        return;
+    }
+
 // 🔥 LOAD FROM GOOGLE SHEETS
 async function loadCards() {
 
