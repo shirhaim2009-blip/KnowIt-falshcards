@@ -96,7 +96,7 @@ let correct = 0;
 let wrong = 0;
 
 async function loadCards() {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbwwWbTURuUITfceDVqvfCTu4oBTjMQR1LjVhMEMQ4eJ_CBGq0LKkC8AOvgA4lmuDArE/exec");
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxtsjs7YmA6X8i5dRQT2MbUGIx42uiP0AWvDfsYNkzYUqMfG9SjyPlcwiw-jyID797z/exec");
     const data = await res.json();
 
     cards = data.filter(card => card.tag === setId);
