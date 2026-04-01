@@ -90,99 +90,96 @@ button:hover {
 const params = new URLSearchParams(window.location.search);
 const setId = params.get("set");
 
+const scriptURL = "https://script.google.com/macros/s/AKfycbwwWbTURuUITfceDVqvfCTu4oBTjMQR1LjVhMEMQ4eJ_CBGq0LKkC8AOvgA4lmuDArE/exec";
+
 let cards = [];
 let current = 0;
-let correct = 0;
-let wrong = 0;
 
-async function loadCards() {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxtsjs7YmA6X8i5dRQT2MbUGIx42uiP0AWvDfsYNkzYUqMfG9SjyPlcwiw-jyID797z/exec");
-    const data = await res.json();
+// 🟡 show loading
+document.body.innerHTML = "<h2 style='text-align:center'>Loading flashcards...</h2>";
 
-    cards = data.filter(card => card.tag === setId);
+if (!setId) {
+    document.body.innerHTML = "<h2>No set ID found.</h2>";
+} else {
 
-    if (cards.length === 0) {
-        alert("No flashcards found.");
-        return;
-    }
+    fetch(`${scriptURL}?set=${setId}`)
+        .then(res => res.json())
+        .then(data => {
 
-// 🔥 LOAD FROM GOOGLE SHEETS
-async function loadCards() {
+            console.log("DATA:", data);
 
-    if (!setId) {
-        document.getElementById("front").innerText = "No set in URL.";
-        return;
-    }
+            if (!data || data.length === 0) {
+                document.body.innerHTML = "<h2>No flashcards found.</h2>";
+                return;
+            }
 
-    try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbx7Mt6VI0htpVEWyPxtB99ESZmOYftSwOAuAFRp8Rs5K2rIJgkgN1sAYYQ9PawotbKi/exec");
-        const data = await res.json();
+            cards = data;
 
-        cards = data.filter(item => item.tag === setId);
+            showCard();
 
-        if (cards.length === 0) {
-            document.getElementById("front").innerText = "No flashcards found.";
-            return;
-        }
-
-        showCard();
-
-    } catch (err) {
-        console.error(err);
-        document.getElementById("front").innerText = "Error loading data.";
-    }
+        })
+        .catch(err => {
+            console.error(err);
+            document.body.innerHTML = "<h2>Error loading flashcards.</h2>";
+        });
 }
 
-// 🔥 SHOW CARD
+
+// 🔥 SIMPLE CARD DISPLAY
 function showCard() {
     const card = cards[current];
 
-    document.getElementById("front").innerText = card.front;
-    document.getElementById("back").innerText = card.back;
+    document.body.innerHTML = `
+        <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
+            <h2>Flashcard ${current + 1} / ${cards.length}</h2>
 
-    updateCounter();
+            <div onclick="flipCard()" id="card"
+                style="
+                margin:30px auto;
+                width:300px;
+                height:200px;
+                background:white;
+                border-radius:12px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:20px;
+                cursor:pointer;
+                box-shadow:0 10px 25px rgba(0,0,0,0.2);
+                ">
+                ${card.front}
+            </div>
+
+            <button onclick="prev()">⬅️ Prev</button>
+            <button onclick="next()">Next ➡️</button>
+        </div>
+    `;
 }
 
-// 🔥 CONTROLS
-function nextCard() {
-    if (current < cards.length - 1) {
+let flipped = false;
+
+function flipCard(){
+    const card = document.getElementById("card");
+    flipped = !flipped;
+
+    card.innerText = flipped ? cards[current].back : cards[current].front;
+}
+
+function next(){
+    if(current < cards.length - 1){
         current++;
+        flipped = false;
         showCard();
     }
 }
 
-function prevCard() {
-    if (current > 0) {
+function prev(){
+    if(current > 0){
         current--;
+        flipped = false;
         showCard();
     }
 }
-
-function markCorrect() {
-    correct++;
-    nextCard();
-}
-
-function markWrong() {
-    wrong++;
-    nextCard();
-}
-
-function restart() {
-    current = 0;
-    correct = 0;
-    wrong = 0;
-    showCard();
-}
-
-// 🔥 COUNTER
-function updateCounter() {
-    document.getElementById("counter").innerText =
-        `Card ${current + 1} / ${cards.length} | ✔ ${correct} ✖ ${wrong}`;
-}
-
-// 🔥 START
-loadCards();
 
 </script>
 
