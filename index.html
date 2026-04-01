@@ -179,10 +179,6 @@ function showTab(id){
 }
 
 // DATA
-const params=new URLSearchParams(window.location.search);
-const setId=params.get("set");
-
-const scriptURL="https://script.google.com/macros/s/AKfycbwwWbTURuUITfceDVqvfCTu4oBTjMQR1LjVhMEMQ4eJ_CBGq0LKkC8AOvgA4lmuDArE/exec";
 
 let cards=[];
 let current=0;
@@ -190,6 +186,11 @@ let flipped=false;
 let correct=0;
 let wrong=0;
 let wrongIndexes=[];
+
+const params = new URLSearchParams(window.location.search);
+const setId = params.get("set");
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbwwWbTURuUITfceDVqvfCTu4oBTjMQR1LjVhMEMQ4eJ_CBGq0LKkC8AOvgA4lmuDArE/exec";
 
 // LOAD DATA
 async function loadCards(){
@@ -202,6 +203,7 @@ async function loadCards(){
     }
 
     cards=data;
+    setupCardClick();
     showCard();
 }
 
@@ -219,10 +221,12 @@ function showCard(){
 }
 
 // FLIP
-document.getElementById("card").onclick=()=>{
-    flipped=!flipped;
-    showCard();
-};
+function setupCardClick(){
+    document.getElementById("card").onclick = () => {
+        flipped = !flipped;
+        showCard();
+    };
+}
 
 // NAVIGATION
 function next(){
