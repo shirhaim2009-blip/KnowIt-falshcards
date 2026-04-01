@@ -107,7 +107,7 @@ body{
 
 .main.shifted{
   margin-left:240px;
-  margin-top:60px; /* FIXED */
+  margin-top:60px;
 }
 
 /* TABS */
@@ -208,7 +208,7 @@ button:hover{
 /* CLEAN TITLE FIX */
 #knowledgeTitle{
   font-size:34px;
-  text-align:center; /* FIXED */
+  text-align:center;
   margin-bottom:10px;
 }
 
@@ -274,129 +274,194 @@ textarea{
 <button class="menu-toggle" id="menuToggle">☰</button>
 
 <div class="sidebar" id="sidebar">
-<button class="tab-btn active" onclick="openTab('study', this)">Flashcards</button>
-<button class="tab-btn" onclick="openTab('test', this)">Test Your Knowledge</button>
-<button class="tab-btn" onclick="openTab('print', this)">Print</button>
+  <button class="tab-btn active" onclick="openTab('study', this)">Flashcards</button>
+  <button class="tab-btn" onclick="openTab('test', this)">Test Your Knowledge</button>
+  <button class="tab-btn" onclick="openTab('print', this)">Print</button>
 </div>
 
 <div class="main" id="main">
 
-<div id="study" class="tab active">
-<div class="container">
+  <div id="study" class="tab active">
+    <div class="container">
 
-<div class="buttonRow" style="justify-content:flex-end;">
-<button id="toggleMode">Mode: Term → Definition</button>
-</div>
+      <div class="buttonRow" style="justify-content:flex-end;">
+        <button id="toggleMode">Mode: Term → Definition</button>
+      </div>
 
-<div id="reviewIndicator">Reviewing Incorrect Cards</div>
-<div id="progress"></div>
+      <div id="reviewIndicator">Reviewing Incorrect Cards</div>
+      <div id="progress"></div>
 
-<div class="flashcard" id="flashcard">
-<div class="flashcard-inner">
-<div class="flashcard-front" id="front"></div>
-<div class="flashcard-back" id="back"></div>
-</div>
-</div>
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-inner">
+          <div class="flashcard-front" id="front">Loading...</div>
+          <div class="flashcard-back" id="back"></div>
+        </div>
+      </div>
 
-<div class="buttonRow">
-<button id="prev">← Previous</button>
-<button id="incorrect">✖ Incorrect</button>
-<button id="correct">✔ Correct</button>
-<button id="next">Next →</button>
-<button id="review">⟳ Review Wrong</button>
-<button id="reset">↺ Restart</button>
-</div>
+      <div class="buttonRow">
+        <button id="prev">← Previous</button>
+        <button id="incorrect">✖ Incorrect</button>
+        <button id="correct">✔ Correct</button>
+        <button id="next">Next →</button>
+        <button id="review">⟳ Review Wrong</button>
+        <button id="reset">↺ Restart</button>
+      </div>
 
-</div>
-</div>
+    </div>
+  </div>
 
-<div id="test" class="tab">
-<div class="container">
+  <div id="test" class="tab">
+    <div class="container">
 
-<div id="knowledgeTitle">Test Your Knowledge</div>
-<div id="knowledgeExplain">
-Explain the term in your own words and submit it for feedback.
-</div>
+      <div id="knowledgeTitle">Test Your Knowledge</div>
+      <div id="knowledgeExplain">
+        Explain the term in your own words and submit it for feedback.
+      </div>
 
-<div id="termPrompt"></div>
-<textarea placeholder="Write your explanation here..."></textarea>
+      <div id="termPrompt"></div>
+      <textarea placeholder="Write your explanation here..."></textarea>
 
-<div class="buttonRow" style="margin-top:14px;">
-<button id="prevTerm">← Previous Term</button>
-<button id="nextTerm">Next Term →</button>
-</div>
+      <div class="buttonRow" style="margin-top:14px;">
+        <button id="prevTerm">← Previous Term</button>
+        <button id="nextTerm">Next Term →</button>
+      </div>
 
-<button id="submitBtn">Submit</button>
+      <button id="submitBtn">Submit</button>
 
-<div style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
-Response will appear here.
-</div>
+      <div style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
+        Response will appear here.
+      </div>
 
-</div>
-</div>
+    </div>
+  </div>
 
-<div id="print" class="tab">
-<div class="container">
+  <div id="print" class="tab">
+    <div class="container">
 
-<div class="buttonRow">
-<button id="double">⇄ Double Sided</button>
-<button id="single">☰ One Sided</button>
-<button id="save">⬇ Save PDF</button>
-</div>
+      <div class="buttonRow">
+        <button id="double">⇄ Double Sided</button>
+        <button id="single">☰ One Sided</button>
+        <button id="save">⬇ Save PDF</button>
+      </div>
 
-<div class="preview" id="preview">
-Double-Sided Layout Preview
-</div>
+      <div class="preview" id="preview">
+        Double-Sided Layout Preview
+      </div>
 
-</div>
-</div>
+    </div>
+  </div>
 
 </div>
 
 <script>
-const menuToggle=document.getElementById("menuToggle");
-const sidebar=document.getElementById("sidebar");
-const main=document.getElementById("main");
+/* MENU */
+const menuToggle = document.getElementById("menuToggle");
+const sidebar = document.getElementById("sidebar");
+const main = document.getElementById("main");
 
-menuToggle.onclick=()=>{
-  const open=!sidebar.classList.contains("open");
+menuToggle.onclick = () => {
+  const open = !sidebar.classList.contains("open");
   sidebar.classList.toggle("open", open);
   main.classList.toggle("shifted", open);
   menuToggle.classList.toggle("active", open);
 };
 
-function openTab(tabId, btn){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+function openTab(tabId, btn) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.getElementById(tabId).classList.add("active");
-  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
 
 /* FLASHCARDS */
-let cards=[
-  {term:"Lusitania",def:"British ship sunk in WWI",status:null},
-  {term:"Zimmermann Note",def:"Germany asked Mexico to fight US",status:null},
-  {term:"Treaty of Versailles",def:"Ended WWI",status:null}
-];
+const scriptURL = "https://script.google.com/macros/s/AKfycbxtsjs7YmA6X8i5dRQT2MbUGIx42uiP0AWvDfsYNkzYUqMfG9SjyPlcwiw-jyID797z/exec";
+const params = new URLSearchParams(window.location.search);
+const setId = params.get("set");
 
-let current=0;
+let allCards = [];
+let cards = [];
+let current = 0;
 
-const front=document.getElementById("front");
-const back=document.getElementById("back");
-const flashcard=document.getElementById("flashcard");
+const frontEl = document.getElementById("front");
+const backEl = document.getElementById("back");
+const flashcard = document.getElementById("flashcard");
+const progressEl = document.getElementById("progress");
 
-function show(){
-  let c=cards[current];
-  front.innerText=c.term;
-  back.innerText=c.def;
+async function loadCards() {
+  frontEl.innerText = "Loading...";
+  try {
+    const url = setId ? `${scriptURL}?set=${setId}` : scriptURL;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    allCards = setId ? data.filter(item => item.tag === setId) : data;
+
+    if (!allCards || allCards.length === 0) {
+      frontEl.innerText = "No flashcards found.";
+      return;
+    }
+
+    cards = allCards.map(c => ({ ...c, status: null }));
+    current = 0;
+    showCard();
+  } catch (err) {
+    console.error(err);
+    frontEl.innerText = "Error loading flashcards.";
+  }
 }
 
-flashcard.onclick=()=>flashcard.classList.toggle("flipped");
+function showCard() {
+  if (cards.length === 0) return;
+  const c = cards[current];
+  flashcard.classList.remove("flipped", "correct", "incorrect");
+  frontEl.innerText = c.front || c.term || "";
+  backEl.innerText = c.back || c.def || "";
+  progressEl.innerText = `Card ${current + 1} / ${cards.length}`;
+}
 
-document.getElementById("next").onclick=()=>{current=(current+1)%cards.length; show();}
-document.getElementById("prev").onclick=()=>{current=(current-1+cards.length)%cards.length; show();}
+flashcard.onclick = () => flashcard.classList.toggle("flipped");
 
-show();
+document.getElementById("next").onclick = () => {
+  current = (current + 1) % cards.length;
+  showCard();
+};
+
+document.getElementById("prev").onclick = () => {
+  current = (current - 1 + cards.length) % cards.length;
+  showCard();
+};
+
+document.getElementById("correct").onclick = () => {
+  cards[current].status = "correct";
+  flashcard.classList.remove("incorrect");
+  flashcard.classList.add("correct");
+};
+
+document.getElementById("incorrect").onclick = () => {
+  cards[current].status = "incorrect";
+  flashcard.classList.remove("correct");
+  flashcard.classList.add("incorrect");
+};
+
+document.getElementById("review").onclick = () => {
+  const wrong = cards.filter(c => c.status === "incorrect");
+  if (wrong.length === 0) {
+    alert("No incorrect cards to review!");
+    return;
+  }
+  cards = wrong;
+  current = 0;
+  document.getElementById("reviewIndicator").style.display = "block";
+  showCard();
+};
+
+document.getElementById("reset").onclick = () => {
+  document.getElementById("reviewIndicator").style.display = "none";
+  loadCards();
+};
+
+/* START */
+loadCards();
 </script>
 
 </body>
