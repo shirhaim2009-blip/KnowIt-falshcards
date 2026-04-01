@@ -394,7 +394,7 @@ async function loadCards() {
     const res = await fetch(url);
     const data = await res.json();
 
-    allCards = setId ? data.filter(item => item.tag === setId) : data;
+    allCards = Array.isArray(data) ? data : [];
 
     if (!allCards || allCards.length === 0) {
       frontEl.innerText = "No flashcards found.";
