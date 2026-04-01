@@ -258,6 +258,13 @@ textarea{
   color:#555;
 }
 
+#scoreSummary{
+  text-align:center;
+  margin-bottom:10px;
+  font-size:15px;
+  color:#555;
+}
+
 #reviewIndicator{
   text-align:center;
   color:#c0392b;
@@ -288,6 +295,7 @@ textarea{
 
       <div id="reviewIndicator">Reviewing Incorrect Cards</div>
       <div id="progress"></div>
+      <div id="scoreSummary"></div>
 
       <div class="flashcard" id="flashcard">
         <div class="flashcard-inner">
@@ -385,12 +393,19 @@ const frontEl = document.getElementById("front");
 const backEl = document.getElementById("back");
 const flashcard = document.getElementById("flashcard");
 const progressEl = document.getElementById("progress");
+const scoreSummaryEl = document.getElementById("scoreSummary");
 const toggleModeBtn = document.getElementById("toggleMode");
 
 function updateModeButton() {
   toggleModeBtn.innerText = showBackFirst
     ? "Mode: Definition → Term"
     : "Mode: Term → Definition";
+}
+
+function updateScoreSummary() {
+  const correctCount = cards.filter(c => c.status === "correct").length;
+  const incorrectCount = cards.filter(c => c.status === "incorrect").length;
+  scoreSummaryEl.innerText = `Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
 }
 
 async function loadCards() {
@@ -407,6 +422,8 @@ async function loadCards() {
 
     if (!allCards || allCards.length === 0) {
       frontEl.innerText = "No flashcards found.";
+      progressEl.innerText = "";
+      scoreSummaryEl.innerText = "";
       return;
     }
 
@@ -416,6 +433,8 @@ async function loadCards() {
   } catch (err) {
     console.error(err);
     frontEl.innerText = "Error loading flashcards.";
+    progressEl.innerText = "";
+    scoreSummaryEl.innerText = "";
   }
 }
 
@@ -434,6 +453,7 @@ function showCard() {
   }
 
   progressEl.innerText = `Card ${current + 1} / ${cards.length}`;
+  updateScoreSummary();
 }
 
 flashcard.onclick = () => flashcard.classList.toggle("flipped");
@@ -458,12 +478,14 @@ document.getElementById("correct").onclick = () => {
   cards[current].status = "correct";
   flashcard.classList.remove("incorrect");
   flashcard.classList.add("correct");
+  updateScoreSummary();
 };
 
 document.getElementById("incorrect").onclick = () => {
   cards[current].status = "incorrect";
   flashcard.classList.remove("correct");
   flashcard.classList.add("incorrect");
+  updateScoreSummary();
 };
 
 document.getElementById("review").onclick = () => {
