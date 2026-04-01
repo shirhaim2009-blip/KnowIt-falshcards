@@ -1,280 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flashcards</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Study Pro</title>
+    <style>
+        :root {
+            --primary: #5471c0;
+            --primary-dark: #405aa0;
+            --accent: #764ba2;
+            --bg: linear-gradient(135deg, #667eea, #764ba2);
+            --white: #ffffff;
+        }
 
-<style>
-body{
-    font-family:'Segoe UI',sans-serif;
-    margin:0;
-    background:linear-gradient(135deg,#667eea,#764ba2);
-    color:#333;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: #333;
+        }
 
-/* MENU BUTTON */
-#menuToggle{
-    position:fixed;
-    top:15px;
-    left:15px;
-    width:45px;
-    height:45px;
-    border-radius:50%;
-    background:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    box-shadow:0 5px 15px rgba(0,0,0,0.2);
-    z-index:1000;
-}
+        /* SIDEBAR & MENU */
+        .menu-toggle {
+            position: fixed; top: 20px; left: 20px; width: 50px; height: 50px;
+            border: none; border-radius: 50%; background: var(--primary);
+            color: white; font-size: 24px; cursor: pointer; z-index: 1100;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: 0.3s;
+        }
 
-/* MENU PANEL */
-#menu{
-    position:fixed;
-    top:80px;
-    left:15px;
-    background:white;
-    border-radius:12px;
-    padding:10px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.2);
-    display:none;
-}
+        .sidebar {
+            position: fixed; top: 0; left: -260px; width: 240px; height: 100%;
+            background: rgba(255,255,255,0.98); box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; padding: 100px 20px 20px;
+            gap: 10px; transition: 0.4s ease; z-index: 1050;
+        }
 
-.menu-item{
-    padding:10px 15px;
-    cursor:pointer;
-    border-radius:8px;
-}
-.menu-item:hover{
-    background:#f0f0f0;
-}
+        .sidebar.open { left: 0; }
 
-/* TABS */
-.tab{
-    display:none;
-    text-align:center;
-    padding-top:120px;
-}
-.active{ display:block; }
+        .tab-btn {
+            background: none; border: none; color: #444; text-align: left;
+            padding: 12px; border-radius: 8px; cursor: pointer; font-size: 15px;
+            transition: 0.2s;
+        }
 
-/* FLASHCARD */
-.card{
-    margin:30px auto;
-    width:350px;
-    height:220px;
-    background:white;
-    border-radius:15px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    font-size:22px;
-    padding:15px;
-    cursor:pointer;
-    box-shadow:0 10px 25px rgba(0,0,0,0.3);
-    transition:transform 0.4s;
-}
+        .tab-btn.active { background: #d6def7; font-weight: 600; color: var(--primary-dark); }
+        .tab-btn:hover:not(.active) { background: #e4e9f7; }
 
-/* BUTTONS */
-.controls{
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    flex-wrap:wrap;
-}
+        /* MAIN CONTENT */
+        .main {
+            flex: 1; padding: 40px; overflow-y: auto; transition: 0.4s ease;
+            display: flex; flex-direction: column; align-items: center;
+        }
 
-button{
-    padding:10px 15px;
-    border:none;
-    border-radius:8px;
-    background:#5471c0;
-    color:white;
-    cursor:pointer;
-    min-width:120px;
-}
+        .main.shifted { margin-left: 240px; }
 
-.correct{ background:#4CAF50; }
-.wrong{ background:#f44336; }
+        .container {
+            background: var(--white); padding: 30px; border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2); width: 100%; max-width: 700px;
+        }
 
-/* TEST MODE */
-textarea{
-    width:300px;
-    height:120px;
-    margin-top:15px;
-    border-radius:10px;
-    padding:10px;
-}
+        .tab { display: none; width: 100%; }
+        .tab.active { display: block; }
 
-</style>
+        /* FLASHCARD DESIGN */
+        .flashcard {
+            width: 100%; height: 300px; perspective: 1000px; margin: 20px 0; cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative; width: 100%; height: 100%; text-align: center;
+            transition: transform 0.6s; transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+
+        .front, .back {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; box-sizing: border-box; border-radius: 15px;
+            font-size: 24px; font-weight: 500; background: #fdfdfd;
+            box-shadow: inset 0 0 0 2px #eee;
+        }
+
+        .back { transform: rotateY(180deg); background: #f9f9f9; color: #555; }
+
+        /* CONTROLS */
+        .button-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+        
+        button.action {
+            min-width: 120px; padding: 12px; border: none; border-radius: 10px;
+            background: var(--primary); color: white; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
+        }
+
+        button.action:hover { transform: translateY(-2px); background: var(--primary-dark); }
+        button.correct { background: #4caf50; }
+        button.wrong { background: #f44336; }
+        
+        #progress { text-align: center; margin-bottom: 15px; font-weight: bold; color: #666; }
+        
+        textarea {
+            width: 100%; height: 120px; padding: 15px; border-radius: 10px;
+            border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; margin: 15px 0;
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="menuToggle">☰</div>
+<button class="menu-toggle" id="menuToggle">☰</button>
 
-<div id="menu">
-    <div class="menu-item" onclick="showTab('flashcards')">Flashcards</div>
-    <div class="menu-item" onclick="showTab('test')">Test Your Knowledge</div>
-    <div class="menu-item" onclick="showTab('print')">Print</div>
+<div class="sidebar" id="sidebar">
+    <button class="tab-btn active" onclick="openTab('study', this)">Flashcards</button>
+    <button class="tab-btn" onclick="openTab('test', this)">Test Knowledge</button>
+    <button class="tab-btn" onclick="openTab('print', this)">Print Mode</button>
 </div>
 
-<!-- FLASHCARDS TAB -->
-<div id="flashcards" class="tab active">
-    <div id="card" class="card">Loading...</div>
+<div class="main" id="main">
+    
+    <div id="study" class="tab active">
+        <div class="container">
+            <div id="progress">Loading cards...</div>
+            
+            <div class="flashcard" id="flashcard" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="front" id="cardFront">...</div>
+                    <div class="back" id="cardBack">...</div>
+                </div>
+            </div>
 
-    <div class="controls">
-        <button onclick="prev()">⬅️ Previous</button>
-        <button onclick="next()">Next ➡️</button>
+            <div class="button-row">
+                <button class="action" onclick="prevCard()">← Prev</button>
+                <button class="action wrong" onclick="markCard(false)">✖ Wrong</button>
+                <button class="action correct" onclick="markCard(true)">✔ Correct</button>
+                <button class="action" onclick="nextCard()">Next →</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="action" style="background:#777" onclick="restart()">↺ Restart</button>
+            </div>
+        </div>
     </div>
 
-    <div class="controls">
-        <button class="correct" onclick="markCorrect()">✔ Correct</button>
-        <button class="wrong" onclick="markWrong()">✖ Incorrect</button>
+    <div id="test" class="tab">
+        <div class="container">
+            <h2 style="text-align:center">Self-Test</h2>
+            <div id="testPrompt" style="font-size:20px; font-weight:bold; margin-bottom:10px;">Term Loading...</div>
+            <textarea id="userResponse" placeholder="Type the definition or explanation here..."></textarea>
+            <div class="button-row">
+                <button class="action" onclick="showAnswer()">Check Answer</button>
+            </div>
+            <div id="feedbackBox" style="display:none; margin-top:20px; padding:15px; background:#f0f0f0; border-radius:10px;">
+                <strong>Correct Definition:</strong> <p id="actualDefinition"></p>
+            </div>
+        </div>
     </div>
 
-    <div class="controls">
-        <button onclick="reviewWrong()">Review Wrong</button>
-        <button onclick="restart()">Restart</button>
-    </div>
-
-    <p id="score"></p>
-</div>
-
-<!-- TEST TAB -->
-<div id="test" class="tab">
-    <h2>Test Your Knowledge</h2>
-    <p id="testTerm"></p>
-
-    <textarea placeholder="Type your answer..."></textarea><br>
-    <button>Submit</button>
-
-    <div class="controls">
-        <button onclick="prev()">⬅️ Previous</button>
-        <button onclick="next()">Next ➡️</button>
-    </div>
-</div>
-
-<!-- PRINT TAB -->
-<div id="print" class="tab">
-    <h2>Print Flashcards</h2>
-    <button onclick="window.print()">Save as PDF</button>
 </div>
 
 <script>
+    // --- CONFIGURATION ---
+    const scriptURL = "https://script.google.com/macros/s/AKfycbx7Mt6VI0htpVEWyPxtB99ESZmOYftSwOAuAFRp8Rs5K2rIJgkgN1sAYYQ9PawotbKi/exec";
+    const params = new URLSearchParams(window.location.search);
+    const setId = params.get("set");
 
-// MENU
-const menuToggle=document.getElementById("menuToggle");
-const menu=document.getElementById("menu");
+    let allCards = [];
+    let currentIndex = 0;
+    let scores = { correct: 0, wrong: 0 };
 
-menuToggle.onclick=()=> {
-    menu.style.display = menu.style.display==="block" ? "none" : "block";
-};
+    // --- SIDEBAR LOGIC ---
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.getElementById("sidebar");
+    const main = document.getElementById("main");
 
-// TABS
-function showTab(id){
-    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-}
-
-// DATA
-
-let cards=[];
-let current=0;
-let flipped=false;
-let correct=0;
-let wrong=0;
-let wrongIndexes=[];
-
-const params = new URLSearchParams(window.location.search);
-const setId = params.get("set");
-
-const scriptURL = "https://script.google.com/macros/s/AKfycbwwWbTURuUITfceDVqvfCTu4oBTjMQR1LjVhMEMQ4eJ_CBGq0LKkC8AOvgA4lmuDArE/exec";
-
-// LOAD DATA
-async function loadCards(){
-    const res=await fetch(`${scriptURL}?set=${setId}`);
-    const data=await res.json();
-
-    if(!data.length){
-        document.getElementById("card").innerText="No flashcards found";
-        return;
-    }
-
-    cards=data;
-    setupCardClick();
-    showCard();
-}
-
-// SHOW CARD
-function showCard(){
-    const card=cards[current];
-    const el=document.getElementById("card");
-
-    el.innerText=flipped ? card.back : card.front;
-
-    document.getElementById("score").innerText=
-        `Correct: ${correct} | Incorrect: ${wrong}`;
-
-    document.getElementById("testTerm").innerText=card.front;
-}
-
-// FLIP
-function setupCardClick(){
-    document.getElementById("card").onclick = () => {
-        flipped = !flipped;
-        showCard();
+    menuToggle.onclick = () => {
+        sidebar.classList.toggle("open");
+        main.classList.toggle("shifted");
     };
-}
 
-// NAVIGATION
-function next(){
-    if(current<cards.length-1){
-        current++;
-        flipped=false;
-        showCard();
+    function openTab(tabId, btn) {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        updateDisplay();
     }
-}
 
-function prev(){
-    if(current>0){
-        current--;
-        flipped=false;
-        showCard();
+    // --- DATA LOADING ---
+    async function loadData() {
+        if (!setId) {
+            document.getElementById("progress").innerText = "Error: No 'set' ID found in URL.";
+            return;
+        }
+
+        try {
+            const response = await fetch(scriptURL);
+            const data = await response.json();
+            // Filter cards based on the URL tag
+            allCards = data.filter(item => item.tag === setId);
+
+            if (allCards.length === 0) {
+                document.getElementById("progress").innerText = "No cards found for this set.";
+            } else {
+                updateDisplay();
+            }
+        } catch (error) {
+            console.error(error);
+            document.getElementById("progress").innerText = "Error connecting to Google Sheets.";
+        }
     }
-}
 
-// TRACKING
-function markCorrect(){
-    correct++;
-    next();
-}
+    // --- CORE LOGIC ---
+    function updateDisplay() {
+        if (allCards.length === 0) return;
 
-function markWrong(){
-    wrong++;
-    wrongIndexes.push(current);
-    next();
-}
+        const card = allCards[currentIndex];
+        
+        // Update Study Tab
+        document.getElementById("cardFront").innerText = card.front;
+        document.getElementById("cardBack").innerText = card.back;
+        document.getElementById("flashcard").classList.remove("flipped");
+        document.getElementById("progress").innerText = 
+            `Card ${currentIndex + 1} of ${allCards.length} | Score: ${scores.correct}✔ ${scores.wrong}✖`;
 
-// REVIEW WRONG
-function reviewWrong(){
-    cards = wrongIndexes.map(i => cards[i]);
-    current=0;
-    correct=0;
-    wrong=0;
-    wrongIndexes=[];
-    showCard();
-}
+        // Update Test Tab
+        document.getElementById("testPrompt").innerText = card.front;
+        document.getElementById("feedbackBox").style.display = "none";
+        document.getElementById("userResponse").value = "";
+    }
 
-// RESET
-function restart(){
-    location.reload();
-}
+    function nextCard() {
+        currentIndex = (currentIndex + 1) % allCards.length;
+        updateDisplay();
+    }
 
-// INIT
-loadCards();
+    function prevCard() {
+        currentIndex = (currentIndex - 1 + allCards.length) % allCards.length;
+        updateDisplay();
+    }
 
+    function markCard(isCorrect) {
+        if (isCorrect) scores.correct++;
+        else scores.wrong++;
+        nextCard();
+    }
+
+    function restart() {
+        currentIndex = 0;
+        scores = { correct: 0, wrong: 0 };
+        updateDisplay();
+    }
+
+    function showAnswer() {
+        const box = document.getElementById("feedbackBox");
+        const text = document.getElementById("actualDefinition");
+        box.style.display = "block";
+        text.innerText = allCards[currentIndex].back;
+    }
+
+    // Initialize
+    loadData();
 </script>
 
 </body>
