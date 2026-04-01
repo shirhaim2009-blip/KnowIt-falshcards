@@ -268,7 +268,6 @@ textarea.incorrect{
   font-weight:bold;
 }
 
-/* PRINT PREVIEW */
 .print-sheet{
   display:flex;
   flex-direction:column;
@@ -474,8 +473,8 @@ textarea.incorrect{
         <button id="incorrect">✖ Incorrect</button>
         <button id="correct">✔ Correct</button>
         <button id="next">Next →</button>
-        <button id="review">⟳ Review Wrong</button>
         <button id="reset">↺ Restart</button>
+        <button id="review">⟳ Review Wrong</button>
       </div>
     </div>
   </div>
@@ -497,8 +496,8 @@ textarea.incorrect{
         <button id="incorrectTest">✖ Incorrect</button>
         <button id="correctTest">✔ Correct</button>
         <button id="nextTerm">Next Term →</button>
-        <button id="reviewTest">⟳ Review Wrong</button>
         <button id="resetTest">↺ Restart</button>
+        <button id="reviewTest">⟳ Review Wrong</button>
       </div>
 
       <button id="submitBtn">Submit</button>
@@ -806,80 +805,3 @@ document.getElementById("review").onclick = () => {
   showCard();
 };
 
-document.getElementById("reset").onclick = () => {
-  loadCards();
-};
-
-document.getElementById("nextTerm").onclick = () => {
-  if (!testCards.length) return;
-  testCurrent = (testCurrent + 1) % testCards.length;
-  clearTestInputState();
-  showTestCard();
-};
-
-document.getElementById("prevTerm").onclick = () => {
-  if (!testCards.length) return;
-  testCurrent = (testCurrent - 1 + testCards.length) % testCards.length;
-  clearTestInputState();
-  showTestCard();
-};
-
-document.getElementById("correctTest").onclick = () => {
-  if (!testCards.length) return;
-  testCards[testCurrent].status = "correct";
-  setTextareaStatus("correct");
-  updateTestScoreSummary();
-};
-
-document.getElementById("incorrectTest").onclick = () => {
-  if (!testCards.length) return;
-  testCards[testCurrent].status = "incorrect";
-  setTextareaStatus("incorrect");
-  updateTestScoreSummary();
-};
-
-document.getElementById("reviewTest").onclick = () => {
-  const wrong = testCards.filter(c => c.status === "incorrect");
-  if (!wrong.length) {
-    alert("No incorrect cards to review!");
-    return;
-  }
-  testCards = wrong;
-  testCurrent = 0;
-  testReviewIndicator.style.display = "block";
-  clearTestInputState();
-  showTestCard();
-};
-
-document.getElementById("resetTest").onclick = () => {
-  testCards = allCards.map(c => ({ ...c, status: null }));
-  testCurrent = 0;
-  testReviewIndicator.style.display = "none";
-  clearTestInputState();
-  showTestCard();
-};
-
-singleBtn.onclick = () => {
-  printMode = "single";
-  renderPrintPreview();
-};
-
-doubleBtn.onclick = () => {
-  printMode = "double";
-  renderPrintPreview();
-};
-
-saveBtn.onclick = () => {
-  renderPrintPreview();
-  window.print();
-};
-
-submitBtn.onclick = saveExplanation;
-
-updateModeButton();
-updatePrintButtons();
-loadCards();
-</script>
-
-</body>
-</html>
