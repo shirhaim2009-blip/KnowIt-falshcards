@@ -13,7 +13,6 @@ body{
   overflow:hidden;
 }
 
-/* FLOATING MENU BUTTON */
 .menu-toggle{
   position:fixed;
   top:20px;
@@ -39,7 +38,6 @@ body{
   background:#405aa0;
 }
 
-/* SIDEBAR */
 .sidebar{
   position:fixed;
   top:0;
@@ -62,7 +60,6 @@ body{
   opacity:1;
 }
 
-/* MENU BUTTONS */
 .tab-btn{
   background:none;
   border:none;
@@ -93,7 +90,6 @@ body{
   font-weight:600;
 }
 
-/* MAIN */
 .main{
   flex:1;
   padding:40px;
@@ -108,21 +104,18 @@ body{
   margin-top:60px;
 }
 
-/* TABS */
 .tab{display:none;}
 .tab.active{display:block;}
 
-/* CONTAINER */
 .container{
   background:white;
   padding:30px;
   border-radius:18px;
   box-shadow:0 12px 30px rgba(0,0,0,.15);
-  max-width:750px;
+  max-width:900px;
   margin:auto;
 }
 
-/* FLASHCARD */
 .flashcard{
   width:100%;
   height:260px;
@@ -171,7 +164,6 @@ body{
 .flashcard.correct{border-left:7px solid #4caf50;}
 .flashcard.incorrect{border-left:7px solid #f44336;}
 
-/* BUTTONS */
 .buttonRow{
   display:flex;
   flex-wrap:wrap;
@@ -203,14 +195,12 @@ button:hover{
   min-width:220px;
 }
 
-/* CLEAN TITLE FIX */
 #knowledgeTitle{
   font-size:34px;
   text-align:center;
   margin-bottom:10px;
 }
 
-/* DESCRIPTION */
 #knowledgeExplain{
   text-align:center;
   color:#555;
@@ -251,39 +241,17 @@ textarea.incorrect{
 }
 
 .preview{
-  height:240px;
+  min-height:300px;
   border:1px dashed #ccc;
   border-radius:10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#777;
+  color:#444;
   margin-top:20px;
+  padding:20px;
+  background:#fafafa;
 }
 
-/* PROGRESS */
-#progress{
-  text-align:center;
-  margin-bottom:10px;
-  font-size:15px;
-  color:#555;
-}
-
-#scoreSummary{
-  text-align:center;
-  margin-bottom:10px;
-  font-size:15px;
-  color:#555;
-}
-
-#reviewIndicator{
-  text-align:center;
-  color:#c0392b;
-  display:none;
-  margin-bottom:10px;
-  font-weight:bold;
-}
-
+#progress,
+#scoreSummary,
 #testScoreSummary{
   text-align:center;
   margin-bottom:10px;
@@ -291,12 +259,184 @@ textarea.incorrect{
   color:#555;
 }
 
+#reviewIndicator,
 #testReviewIndicator{
   text-align:center;
   color:#c0392b;
   display:none;
   margin-bottom:10px;
   font-weight:bold;
+}
+
+/* PRINT PREVIEW */
+.print-sheet{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.print-card{
+  border:1px solid #bbb;
+  border-radius:10px;
+  background:white;
+  overflow:hidden;
+}
+
+.print-card.fold{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  min-height:180px;
+}
+
+.print-panel{
+  padding:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:24px;
+  line-height:1.4;
+  min-height:180px;
+}
+
+.print-panel + .print-panel{
+  border-left:2px dashed #bbb;
+}
+
+.print-label{
+  font-size:13px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#777;
+  margin-bottom:10px;
+  font-weight:700;
+}
+
+.print-panel-inner{
+  width:100%;
+}
+
+.print-page{
+  background:white;
+  border:1px solid #bbb;
+  border-radius:10px;
+  min-height:220px;
+  padding:24px;
+  margin-bottom:18px;
+  page-break-after:always;
+  break-after:page;
+}
+
+.print-page:last-child{
+  page-break-after:auto;
+  break-after:auto;
+}
+
+.print-page-title{
+  text-align:center;
+  font-size:14px;
+  color:#777;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:16px;
+}
+
+.print-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.print-grid-card{
+  border:1px solid #bbb;
+  border-radius:10px;
+  min-height:160px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:18px;
+  font-size:22px;
+  line-height:1.35;
+  background:white;
+}
+
+.print-selected{
+  background:#d6def7 !important;
+  color:#2f3f6b;
+}
+
+@media print{
+  body{
+    background:white;
+    display:block;
+    height:auto;
+    overflow:visible;
+  }
+
+  .menu-toggle,
+  .sidebar,
+  #study,
+  #test,
+  #double,
+  #single,
+  #save{
+    display:none !important;
+  }
+
+  .main{
+    margin:0;
+    padding:0;
+    overflow:visible;
+  }
+
+  #print{
+    display:block !important;
+  }
+
+  #print .container{
+    box-shadow:none;
+    border-radius:0;
+    max-width:none;
+    padding:0;
+    margin:0;
+  }
+
+  #preview{
+    border:none;
+    padding:0;
+    background:white;
+  }
+
+  .print-card,
+  .print-page,
+  .print-grid-card{
+    box-shadow:none;
+  }
+
+  .print-page{
+    border:none;
+    border-radius:0;
+    margin:0;
+    min-height:auto;
+  }
+
+  .print-card.fold{
+    page-break-inside:avoid;
+    break-inside:avoid;
+    border:none;
+    border-radius:0;
+  }
+
+  .print-panel{
+    min-height:260px;
+    font-size:26px;
+  }
+
+  @page{
+    size:auto;
+    margin:0.5in;
+  }
 }
 </style>
 </head>
@@ -314,7 +454,6 @@ textarea.incorrect{
 
   <div id="study" class="tab active">
     <div class="container">
-
       <div class="buttonRow" style="justify-content:flex-end;">
         <button id="toggleMode">Mode: Term → Definition</button>
       </div>
@@ -338,13 +477,11 @@ textarea.incorrect{
         <button id="review">⟳ Review Wrong</button>
         <button id="reset">↺ Restart</button>
       </div>
-
     </div>
   </div>
 
   <div id="test" class="tab">
     <div class="container">
-
       <div id="knowledgeTitle">Test Your Knowledge</div>
       <div id="knowledgeExplain">
         Explain the term in your own words and submit it for feedback.
@@ -369,23 +506,20 @@ textarea.incorrect{
       <div id="submitStatus" style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
         Response will appear here.
       </div>
-
     </div>
   </div>
 
   <div id="print" class="tab">
     <div class="container">
-
       <div class="buttonRow">
         <button id="double">⇄ Double Sided</button>
         <button id="single">☰ One Sided</button>
         <button id="save">⬇ Save PDF</button>
       </div>
 
-      <div class="preview" id="preview">
-        Double-Sided Layout Preview
+      <div id="preview" class="preview">
+        Loading print preview...
       </div>
-
     </div>
   </div>
 
@@ -422,6 +556,8 @@ let showBackFirst = false;
 let testCards = [];
 let testCurrent = 0;
 
+let printMode = "double";
+
 const frontEl = document.getElementById("front");
 const backEl = document.getElementById("back");
 const flashcard = document.getElementById("flashcard");
@@ -434,6 +570,10 @@ const submitBtn = document.getElementById("submitBtn");
 const submitStatus = document.getElementById("submitStatus");
 const testScoreSummaryEl = document.getElementById("testScoreSummary");
 const testReviewIndicator = document.getElementById("testReviewIndicator");
+const previewEl = document.getElementById("preview");
+const singleBtn = document.getElementById("single");
+const doubleBtn = document.getElementById("double");
+const saveBtn = document.getElementById("save");
 
 function updateModeButton() {
   toggleModeBtn.innerText = showBackFirst
@@ -465,6 +605,83 @@ function clearTestInputState() {
   setTextareaStatus(null);
 }
 
+function escapeHtml(text) {
+  return String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function updatePrintButtons() {
+  singleBtn.classList.toggle("print-selected", printMode === "single");
+  doubleBtn.classList.toggle("print-selected", printMode === "double");
+}
+
+function renderSingleSidedPreview() {
+  if (!allCards.length) {
+    previewEl.innerHTML = "No flashcards found.";
+    return;
+  }
+
+  previewEl.innerHTML = `
+    <div class="print-sheet">
+      ${allCards.map(card => `
+        <div class="print-card fold">
+          <div class="print-panel">
+            <div class="print-panel-inner">
+              <div class="print-label">Term</div>
+              <div>${escapeHtml(card.front || card.term || "")}</div>
+            </div>
+          </div>
+          <div class="print-panel">
+            <div class="print-panel-inner">
+              <div class="print-label">Definition</div>
+              <div>${escapeHtml(card.back || card.def || "")}</div>
+            </div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderDoubleSidedPreview() {
+  if (!allCards.length) {
+    previewEl.innerHTML = "No flashcards found.";
+    return;
+  }
+
+  const fronts = allCards.map(card => `
+    <div class="print-grid-card">${escapeHtml(card.front || card.term || "")}</div>
+  `).join("");
+
+  const backs = allCards.map(card => `
+    <div class="print-grid-card">${escapeHtml(card.back || card.def || "")}</div>
+  `).join("");
+
+  previewEl.innerHTML = `
+    <div class="print-page">
+      <div class="print-page-title">Page 1 — Terms</div>
+      <div class="print-grid">${fronts}</div>
+    </div>
+    <div class="print-page">
+      <div class="print-page-title">Page 2 — Definitions</div>
+      <div class="print-grid">${backs}</div>
+    </div>
+  `;
+}
+
+function renderPrintPreview() {
+  updatePrintButtons();
+  if (printMode === "single") {
+    renderSingleSidedPreview();
+  } else {
+    renderDoubleSidedPreview();
+  }
+}
+
 async function loadCards() {
   frontEl.innerText = "Loading...";
   try {
@@ -483,6 +700,7 @@ async function loadCards() {
       progressEl.innerText = "";
       scoreSummaryEl.innerText = "";
       testScoreSummaryEl.innerText = "";
+      renderPrintPreview();
       return;
     }
 
@@ -497,6 +715,7 @@ async function loadCards() {
     showCard();
     showTestCard();
     clearTestInputState();
+    renderPrintPreview();
   } catch (err) {
     console.error(err);
     frontEl.innerText = "Error loading flashcards.";
@@ -504,6 +723,7 @@ async function loadCards() {
     progressEl.innerText = "";
     scoreSummaryEl.innerText = "";
     testScoreSummaryEl.innerText = "";
+    previewEl.innerHTML = "Error loading print preview.";
   }
 }
 
@@ -546,7 +766,6 @@ toggleModeBtn.onclick = () => {
   showCard();
 };
 
-/* STUDY TAB */
 document.getElementById("next").onclick = () => {
   if (!cards.length) return;
   current = (current + 1) % cards.length;
@@ -591,7 +810,6 @@ document.getElementById("reset").onclick = () => {
   loadCards();
 };
 
-/* TEST TAB */
 document.getElementById("nextTerm").onclick = () => {
   if (!testCards.length) return;
   testCurrent = (testCurrent + 1) % testCards.length;
@@ -641,9 +859,25 @@ document.getElementById("resetTest").onclick = () => {
   showTestCard();
 };
 
+singleBtn.onclick = () => {
+  printMode = "single";
+  renderPrintPreview();
+};
+
+doubleBtn.onclick = () => {
+  printMode = "double";
+  renderPrintPreview();
+};
+
+saveBtn.onclick = () => {
+  renderPrintPreview();
+  window.print();
+};
+
 submitBtn.onclick = saveExplanation;
 
 updateModeButton();
+updatePrintButtons();
 loadCards();
 </script>
 
