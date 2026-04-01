@@ -272,6 +272,13 @@ textarea{
   margin-bottom:10px;
   font-weight:bold;
 }
+
+#testScoreSummary{
+  text-align:center;
+  margin-bottom:10px;
+  font-size:15px;
+  color:#555;
+}
 </style>
 </head>
 <body>
@@ -324,17 +331,22 @@ textarea{
         Explain the term in your own words and submit it for feedback.
       </div>
 
+      <div id="testScoreSummary"></div>
       <div id="termPrompt"></div>
-      <textarea placeholder="Write your explanation here..."></textarea>
+      <textarea id="explanationInput" placeholder="Write your explanation here..."></textarea>
 
       <div class="buttonRow" style="margin-top:14px;">
         <button id="prevTerm">← Previous Term</button>
+        <button id="correctTest">✔ Correct</button>
+        <button id="incorrectTest">✖ Incorrect</button>
         <button id="nextTerm">Next Term →</button>
+        <button id="reviewTest">⟳ Review Wrong</button>
+        <button id="resetTest">↺ Restart</button>
       </div>
 
       <button id="submitBtn">Submit</button>
 
-      <div style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
+      <div id="submitStatus" style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
         Response will appear here.
       </div>
 
@@ -389,6 +401,9 @@ let cards = [];
 let current = 0;
 let showBackFirst = false;
 
+let testCards = [];
+let testCurrent = 0;
+
 const frontEl = document.getElementById("front");
 const backEl = document.getElementById("back");
 const flashcard = document.getElementById("flashcard");
@@ -396,6 +411,10 @@ const progressEl = document.getElementById("progress");
 const scoreSummaryEl = document.getElementById("scoreSummary");
 const toggleModeBtn = document.getElementById("toggleMode");
 const termPromptEl = document.getElementById("termPrompt");
+const explanationInput = document.getElementById("explanationInput");
+const submitBtn = document.getElementById("submitBtn");
+const submitStatus = document.getElementById("submitStatus");
+const testScoreSummaryEl = document.getElementById("testScoreSummary");
 
 function updateModeButton() {
   toggleModeBtn.innerText = showBackFirst
@@ -407,6 +426,12 @@ function updateScoreSummary() {
   const correctCount = cards.filter(c => c.status === "correct").length;
   const incorrectCount = cards.filter(c => c.status === "incorrect").length;
   scoreSummaryEl.innerText = `Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
+}
+
+function updateTestScoreSummary() {
+  const correctCount = testCards.filter(c => c.status === "correct").length;
+  const incorrectCount = testCards.filter(c => c.status === "incorrect").length;
+  testScoreSummaryEl.innerText = `Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
 }
 
 async function loadCards() {
@@ -421,28 +446,33 @@ async function loadCards() {
 
     allCards = Array.isArray(data) ? data : [];
 
-    if (!allCards || allCards.length === 0) {
+    if (!allCards.length) {
       frontEl.innerText = "No flashcards found.";
       termPromptEl.textContent = "";
       progressEl.innerText = "";
       scoreSummaryEl.innerText = "";
+      testScoreSummaryEl.innerText = "";
       return;
     }
 
     cards = allCards.map(c => ({ ...c, status: null }));
+    testCards = allCards.map(c => ({ ...c, status: null }));
     current = 0;
+    testCurrent = 0;
     showCard();
+    showTestCard();
   } catch (err) {
     console.error(err);
     frontEl.innerText = "Error loading flashcards.";
     termPromptEl.textContent = "";
     progressEl.innerText = "";
     scoreSummaryEl.innerText = "";
+    testScoreSummaryEl.innerText = "";
   }
 }
 
 function showCard() {
-  if (cards.length === 0) return;
+  if (!cards.length) return;
 
   const c = cards[current];
   flashcard.classList.remove("flipped", "correct", "incorrect");
@@ -460,6 +490,62 @@ function showCard() {
   updateScoreSummary();
 }
 
+function showTestCard() {
+  if (!testCards.length) return;
+  const c = testCards[testCurrent];
+  termPromptEl.textContent = c.front || c.term || "";
+  updateTestScoreSummary();
+}
+
+async function saveExplanation() {
+  if (!testCards.length) return;
+
+  const c = testCards[testCurrent];
+  const id = c.id || "";
+  const term = c.front || c.term || "";
+  const explanation = explanationInput.value.trim();
+
+  if (!id) {
+    submitStatus.innerText = "This card has no Id, so it cannot be saved.";
+    return;
+  }
+
+  if (!term) {
+    submitStatus.innerText = "This card has no term.";
+    return;
+  }
+
+  if (!explanation) {
+    submitStatus.innerText = "Please write an explanation first.";
+    return;
+  }
+
+  submitStatus.innerText = "Saving...";
+
+  try {
+    const body = new URLSearchParams({
+      action: "saveExplanation",
+      Id: id,
+      Term: term,
+      Explanation: explanation
+    });
+
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      body
+    });
+
+    const result = await res.json();
+    submitStatus.innerText = result.success
+      ? "Explanation saved to sheet."
+      : (result.error || "Could not save explanation.");
+  } catch (err) {
+    console.error(err);
+    submitStatus.innerText = "Error saving explanation.";
+  }
+}
+
+/* STUDY TAB */
 flashcard.onclick = () => flashcard.classList.toggle("flipped");
 
 toggleModeBtn.onclick = () => {
@@ -469,16 +555,19 @@ toggleModeBtn.onclick = () => {
 };
 
 document.getElementById("next").onclick = () => {
+  if (!cards.length) return;
   current = (current + 1) % cards.length;
   showCard();
 };
 
 document.getElementById("prev").onclick = () => {
+  if (!cards.length) return;
   current = (current - 1 + cards.length) % cards.length;
   showCard();
 };
 
 document.getElementById("correct").onclick = () => {
+  if (!cards.length) return;
   cards[current].status = "correct";
   flashcard.classList.remove("incorrect");
   flashcard.classList.add("correct");
@@ -486,6 +575,7 @@ document.getElementById("correct").onclick = () => {
 };
 
 document.getElementById("incorrect").onclick = () => {
+  if (!cards.length) return;
   cards[current].status = "incorrect";
   flashcard.classList.remove("correct");
   flashcard.classList.add("incorrect");
@@ -494,7 +584,7 @@ document.getElementById("incorrect").onclick = () => {
 
 document.getElementById("review").onclick = () => {
   const wrong = cards.filter(c => c.status === "incorrect");
-  if (wrong.length === 0) {
+  if (!wrong.length) {
     alert("No incorrect cards to review!");
     return;
   }
@@ -508,6 +598,59 @@ document.getElementById("reset").onclick = () => {
   document.getElementById("reviewIndicator").style.display = "none";
   loadCards();
 };
+
+/* TEST TAB */
+document.getElementById("nextTerm").onclick = () => {
+  if (!testCards.length) return;
+  testCurrent = (testCurrent + 1) % testCards.length;
+  explanationInput.value = "";
+  submitStatus.innerText = "Response will appear here.";
+  showTestCard();
+};
+
+document.getElementById("prevTerm").onclick = () => {
+  if (!testCards.length) return;
+  testCurrent = (testCurrent - 1 + testCards.length) % testCards.length;
+  explanationInput.value = "";
+  submitStatus.innerText = "Response will appear here.";
+  showTestCard();
+};
+
+document.getElementById("correctTest").onclick = () => {
+  if (!testCards.length) return;
+  testCards[testCurrent].status = "correct";
+  updateTestScoreSummary();
+};
+
+document.getElementById("incorrectTest").onclick = () => {
+  if (!testCards.length) return;
+  testCards[testCurrent].status = "incorrect";
+  updateTestScoreSummary();
+};
+
+document.getElementById("reviewTest").onclick = () => {
+  const wrong = testCards.filter(c => c.status === "incorrect");
+  if (!wrong.length) {
+    alert("No incorrect cards to review!");
+    return;
+  }
+  testCards = wrong;
+  testCurrent = 0;
+  submitStatus.innerText = "Response will appear here.";
+  showTestCard();
+};
+
+document.getElementById("resetTest").onclick = () => {
+  loadCards();
+  explanationInput.value = "";
+  submitStatus.innerText = "Response will appear here.";
+  testCurrent = 0;
+  testCards = allCards.map(c => ({ ...c, status: null }));
+  updateTestScoreSummary();
+};
+
+/* SAVE */
+submitBtn.onclick = saveExplanation;
 
 /* START */
 updateModeButton();
