@@ -76,4 +76,37 @@ function doGet(e) {
   var idCol = headers.indexOf("Id");
   var tagCol = headers.indexOf("Tag");
   var termCol = headers.indexOf("Term");
-  var definitionCol 
+  var definitionCol = headers.indexOf("Definition");
+
+  if (idCol === -1 || tagCol === -1 || termCol === -1 || definitionCol === -1) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        error: "Missing required columns: Id, Tag, Term, or Definition"
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var result = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+
+    var id = String(row[idCol] || "").trim();
+    var tag = String(row[tagCol] || "").trim();
+    var term = String(row[termCol] || "").trim();
+    var definition = String(row[definitionCol] || "").trim();
+
+    if (tag === setId && term && definition) {
+      result.push({
+        id: id,
+        front: term,
+        back: definition
+      });
+    }
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
