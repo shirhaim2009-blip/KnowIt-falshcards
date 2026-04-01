@@ -72,10 +72,8 @@ body{
   border-radius:8px;
   cursor:pointer;
   font-size:14px;
-
   display:flex;
   align-items:center;
-
   opacity:0;
   transform:translateX(-20px);
   transition:all 0.3s ease;
@@ -381,16 +379,27 @@ const setId = params.get("set");
 let allCards = [];
 let cards = [];
 let current = 0;
+let showBackFirst = false;
 
 const frontEl = document.getElementById("front");
 const backEl = document.getElementById("back");
 const flashcard = document.getElementById("flashcard");
 const progressEl = document.getElementById("progress");
+const toggleModeBtn = document.getElementById("toggleMode");
+
+function updateModeButton() {
+  toggleModeBtn.innerText = showBackFirst
+    ? "Mode: Definition → Term"
+    : "Mode: Term → Definition";
+}
 
 async function loadCards() {
   frontEl.innerText = "Loading...";
   try {
-    const url = setId ? `${scriptURL}?set=${setId}` : scriptURL;
+    const url = setId
+      ? `${scriptURL}?${new URLSearchParams({ set: setId }).toString()}`
+      : scriptURL;
+
     const res = await fetch(url);
     const data = await res.json();
 
@@ -412,14 +421,28 @@ async function loadCards() {
 
 function showCard() {
   if (cards.length === 0) return;
+
   const c = cards[current];
   flashcard.classList.remove("flipped", "correct", "incorrect");
-  frontEl.innerText = c.front || c.term || "";
-  backEl.innerText = c.back || c.def || "";
+
+  if (showBackFirst) {
+    frontEl.innerText = c.back || c.def || "";
+    backEl.innerText = c.front || c.term || "";
+  } else {
+    frontEl.innerText = c.front || c.term || "";
+    backEl.innerText = c.back || c.def || "";
+  }
+
   progressEl.innerText = `Card ${current + 1} / ${cards.length}`;
 }
 
 flashcard.onclick = () => flashcard.classList.toggle("flipped");
+
+toggleModeBtn.onclick = () => {
+  showBackFirst = !showBackFirst;
+  updateModeButton();
+  showCard();
+};
 
 document.getElementById("next").onclick = () => {
   current = (current + 1) % cards.length;
@@ -461,6 +484,7 @@ document.getElementById("reset").onclick = () => {
 };
 
 /* START */
+updateModeButton();
 loadCards();
 </script>
 
