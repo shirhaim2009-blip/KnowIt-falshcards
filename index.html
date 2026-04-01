@@ -231,6 +231,17 @@ textarea{
   padding:12px;
   border-radius:10px;
   border:1px solid #ddd;
+  border-left:7px solid #ddd;
+  box-sizing:border-box;
+  transition:border-color .2s ease, border-left-color .2s ease, background-color .2s ease;
+}
+
+textarea.correct{
+  border-left:7px solid #4caf50;
+}
+
+textarea.incorrect{
+  border-left:7px solid #f44336;
 }
 
 #submitBtn{
@@ -278,6 +289,14 @@ textarea{
   margin-bottom:10px;
   font-size:15px;
   color:#555;
+}
+
+#testReviewIndicator{
+  text-align:center;
+  color:#c0392b;
+  display:none;
+  margin-bottom:10px;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -331,14 +350,15 @@ textarea{
         Explain the term in your own words and submit it for feedback.
       </div>
 
+      <div id="testReviewIndicator">Reviewing Incorrect Cards</div>
       <div id="testScoreSummary"></div>
       <div id="termPrompt"></div>
       <textarea id="explanationInput" placeholder="Write your explanation here..."></textarea>
 
       <div class="buttonRow" style="margin-top:14px;">
         <button id="prevTerm">← Previous Term</button>
-        <button id="correctTest">✔ Correct</button>
         <button id="incorrectTest">✖ Incorrect</button>
+        <button id="correctTest">✔ Correct</button>
         <button id="nextTerm">Next Term →</button>
         <button id="reviewTest">⟳ Review Wrong</button>
         <button id="resetTest">↺ Restart</button>
@@ -372,7 +392,6 @@ textarea{
 </div>
 
 <script>
-/* MENU */
 const menuToggle = document.getElementById("menuToggle");
 const sidebar = document.getElementById("sidebar");
 const main = document.getElementById("main");
@@ -391,7 +410,6 @@ function openTab(tabId, btn) {
   btn.classList.add("active");
 }
 
-/* FLASHCARDS */
 const scriptURL = "https://script.google.com/macros/s/AKfycbxtsjs7YmA6X8i5dRQT2MbUGIx42uiP0AWvDfsYNkzYUqMfG9SjyPlcwiw-jyID797z/exec";
 const params = new URLSearchParams(window.location.search);
 const setId = params.get("set");
@@ -415,6 +433,7 @@ const explanationInput = document.getElementById("explanationInput");
 const submitBtn = document.getElementById("submitBtn");
 const submitStatus = document.getElementById("submitStatus");
 const testScoreSummaryEl = document.getElementById("testScoreSummary");
+const testReviewIndicator = document.getElementById("testReviewIndicator");
 
 function updateModeButton() {
   toggleModeBtn.innerText = showBackFirst
@@ -432,6 +451,18 @@ function updateTestScoreSummary() {
   const correctCount = testCards.filter(c => c.status === "correct").length;
   const incorrectCount = testCards.filter(c => c.status === "incorrect").length;
   testScoreSummaryEl.innerText = `Correct: ${correctCount} | Incorrect: ${incorrectCount}`;
+}
+
+function setTextareaStatus(status) {
+  explanationInput.classList.remove("correct", "incorrect");
+  if (status === "correct") explanationInput.classList.add("correct");
+  if (status === "incorrect") explanationInput.classList.add("incorrect");
+}
+
+function clearTestInputState() {
+  explanationInput.value = "";
+  submitStatus.innerText = "Response will appear here.";
+  setTextareaStatus(null);
 }
 
 async function loadCards() {
@@ -459,8 +490,13 @@ async function loadCards() {
     testCards = allCards.map(c => ({ ...c, status: null }));
     current = 0;
     testCurrent = 0;
+
+    document.getElementById("reviewIndicator").style.display = "none";
+    testReviewIndicator.style.display = "none";
+
     showCard();
     showTestCard();
+    clearTestInputState();
   } catch (err) {
     console.error(err);
     frontEl.innerText = "Error loading flashcards.";
@@ -485,7 +521,6 @@ function showCard() {
     backEl.innerText = c.back || c.def || "";
   }
 
-  termPromptEl.textContent = c.front || c.term || "";
   progressEl.innerText = `Card ${current + 1} / ${cards.length}`;
   updateScoreSummary();
 }
@@ -494,58 +529,15 @@ function showTestCard() {
   if (!testCards.length) return;
   const c = testCards[testCurrent];
   termPromptEl.textContent = c.front || c.term || "";
+  setTextareaStatus(c.status || null);
   updateTestScoreSummary();
 }
 
 async function saveExplanation() {
   if (!testCards.length) return;
-
-  const c = testCards[testCurrent];
-  const id = c.id || "";
-  const term = c.front || c.term || "";
-  const explanation = explanationInput.value.trim();
-
-  if (!id) {
-    submitStatus.innerText = "This card has no Id, so it cannot be saved.";
-    return;
-  }
-
-  if (!term) {
-    submitStatus.innerText = "This card has no term.";
-    return;
-  }
-
-  if (!explanation) {
-    submitStatus.innerText = "Please write an explanation first.";
-    return;
-  }
-
-  submitStatus.innerText = "Saving...";
-
-  try {
-    const body = new URLSearchParams({
-      action: "saveExplanation",
-      Id: id,
-      Term: term,
-      Explanation: explanation
-    });
-
-    const res = await fetch(scriptURL, {
-      method: "POST",
-      body
-    });
-
-    const result = await res.json();
-    submitStatus.innerText = result.success
-      ? "Explanation saved to sheet."
-      : (result.error || "Could not save explanation.");
-  } catch (err) {
-    console.error(err);
-    submitStatus.innerText = "Error saving explanation.";
-  }
+  submitStatus.innerText = "Submit functionality is still not connected in this version.";
 }
 
-/* STUDY TAB */
 flashcard.onclick = () => flashcard.classList.toggle("flipped");
 
 toggleModeBtn.onclick = () => {
@@ -554,6 +546,7 @@ toggleModeBtn.onclick = () => {
   showCard();
 };
 
+/* STUDY TAB */
 document.getElementById("next").onclick = () => {
   if (!cards.length) return;
   current = (current + 1) % cards.length;
@@ -595,7 +588,6 @@ document.getElementById("review").onclick = () => {
 };
 
 document.getElementById("reset").onclick = () => {
-  document.getElementById("reviewIndicator").style.display = "none";
   loadCards();
 };
 
@@ -603,28 +595,28 @@ document.getElementById("reset").onclick = () => {
 document.getElementById("nextTerm").onclick = () => {
   if (!testCards.length) return;
   testCurrent = (testCurrent + 1) % testCards.length;
-  explanationInput.value = "";
-  submitStatus.innerText = "Response will appear here.";
+  clearTestInputState();
   showTestCard();
 };
 
 document.getElementById("prevTerm").onclick = () => {
   if (!testCards.length) return;
   testCurrent = (testCurrent - 1 + testCards.length) % testCards.length;
-  explanationInput.value = "";
-  submitStatus.innerText = "Response will appear here.";
+  clearTestInputState();
   showTestCard();
 };
 
 document.getElementById("correctTest").onclick = () => {
   if (!testCards.length) return;
   testCards[testCurrent].status = "correct";
+  setTextareaStatus("correct");
   updateTestScoreSummary();
 };
 
 document.getElementById("incorrectTest").onclick = () => {
   if (!testCards.length) return;
   testCards[testCurrent].status = "incorrect";
+  setTextareaStatus("incorrect");
   updateTestScoreSummary();
 };
 
@@ -636,23 +628,21 @@ document.getElementById("reviewTest").onclick = () => {
   }
   testCards = wrong;
   testCurrent = 0;
-  submitStatus.innerText = "Response will appear here.";
+  testReviewIndicator.style.display = "block";
+  clearTestInputState();
   showTestCard();
 };
 
 document.getElementById("resetTest").onclick = () => {
-  loadCards();
-  explanationInput.value = "";
-  submitStatus.innerText = "Response will appear here.";
-  testCurrent = 0;
   testCards = allCards.map(c => ({ ...c, status: null }));
-  updateTestScoreSummary();
+  testCurrent = 0;
+  testReviewIndicator.style.display = "none";
+  clearTestInputState();
+  showTestCard();
 };
 
-/* SAVE */
 submitBtn.onclick = saveExplanation;
 
-/* START */
 updateModeButton();
 loadCards();
 </script>
