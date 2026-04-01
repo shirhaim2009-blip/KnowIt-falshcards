@@ -395,6 +395,7 @@ const flashcard = document.getElementById("flashcard");
 const progressEl = document.getElementById("progress");
 const scoreSummaryEl = document.getElementById("scoreSummary");
 const toggleModeBtn = document.getElementById("toggleMode");
+const termPromptEl = document.getElementById("termPrompt");
 
 function updateModeButton() {
   toggleModeBtn.innerText = showBackFirst
@@ -422,6 +423,7 @@ async function loadCards() {
 
     if (!allCards || allCards.length === 0) {
       frontEl.innerText = "No flashcards found.";
+      termPromptEl.textContent = "";
       progressEl.innerText = "";
       scoreSummaryEl.innerText = "";
       return;
@@ -433,6 +435,7 @@ async function loadCards() {
   } catch (err) {
     console.error(err);
     frontEl.innerText = "Error loading flashcards.";
+    termPromptEl.textContent = "";
     progressEl.innerText = "";
     scoreSummaryEl.innerText = "";
   }
@@ -452,6 +455,7 @@ function showCard() {
     backEl.innerText = c.back || c.def || "";
   }
 
+  termPromptEl.textContent = c.front || c.term || "";
   progressEl.innerText = `Card ${current + 1} / ${cards.length}`;
   updateScoreSummary();
 }
