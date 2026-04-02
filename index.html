@@ -324,11 +324,14 @@ textarea.incorrect{
   background:white;
   border:1px solid #bbb;
   border-radius:10px;
-  min-height:220px;
-  padding:24px;
-  margin-bottom:18px;
+  width:210mm;
+  height:297mm;
+  box-sizing:border-box;
+  padding:10mm;
+  margin:0 auto 18px auto;
   page-break-after:always;
   break-after:page;
+  overflow:hidden;
 }
 
 .print-page:last-child{
@@ -342,27 +345,36 @@ textarea.incorrect{
   color:#777;
   text-transform:uppercase;
   letter-spacing:.08em;
-  margin-bottom:16px;
+  margin-bottom:8mm;
 }
 
 .print-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
+  grid-template-columns:repeat(2, 1fr);
+  grid-template-rows:repeat(4, 1fr);
+  gap:6mm;
+  height:calc(100% - 14mm);
 }
 
 .print-grid-card{
   border:1px solid #bbb;
   border-radius:10px;
-  min-height:160px;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  padding:18px;
-  font-size:22px;
+  padding:10mm;
+  font-size:18px;
   line-height:1.35;
   background:white;
+  min-height:0;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+.print-grid-card.empty{
+  color:transparent;
+  background:#fff;
 }
 
 .print-selected{
@@ -422,7 +434,9 @@ textarea.incorrect{
     border:none;
     border-radius:0;
     margin:0;
-    min-height:auto;
+    width:210mm;
+    height:297mm;
+    padding:10mm;
   }
 
   .print-card.fold{
@@ -438,8 +452,8 @@ textarea.incorrect{
   }
 
   @page{
-    size:auto;
-    margin:0.5in;
+    size:A4 portrait;
+    margin:10mm;
   }
 }
 </style>
@@ -625,56 +639,71 @@ function updatePrintButtons() {
   doubleBtn.classList.toggle("print-selected", printMode === "double");
 }
 
-function renderSingleSidedPreview() {
-  if (!allCards.length) {
-    previewEl.innerHTML = "No flashcards found.";
-    return;
+function getPrintCards() {
+  const fixedCount = 8;
+  const padded = allCards.slice(0, fixedCount);
+
+  while (padded.length < fixedCount) {
+    padded.push({
+      front: "",
+      back: "",
+      empty: true
+    });
   }
 
+  return padded;
+}
+
+function renderSingleSidedPreview() {
+  const printCards = getPrintCards();
+
   previewEl.innerHTML = `
-    <div class="print-sheet">
-      ${allCards.map(card => `
-        <div class="print-card fold">
-          <div class="print-panel">
-            <div class="print-panel-inner">
-              <div class="print-label">Term</div>
-              <div>${escapeHtml(card.front || card.term || "")}</div>
-            </div>
+    <div class="print-page">
+      <div class="print-page-title">Flashcards — One Sided</div>
+      <div class="print-grid">
+        ${printCards.map(card => `
+          <div class="print-grid-card ${card.empty ? "empty" : ""}">
+            ${card.empty ? "&nbsp;" : escapeHtml(card.front || card.term || "")}
           </div>
-          <div class="print-panel">
-            <div class="print-panel-inner">
-              <div class="print-label">Definition</div>
-              <div>${escapeHtml(card.back || card.def || "")}</div>
-            </div>
+        `).join("")}
+      </div>
+    </div>
+    <div class="print-page">
+      <div class="print-page-title">Definitions — One Sided</div>
+      <div class="print-grid">
+        ${printCards.map(card => `
+          <div class="print-grid-card ${card.empty ? "empty" : ""}">
+            ${card.empty ? "&nbsp;" : escapeHtml(card.back || card.def || "")}
           </div>
-        </div>
-      `).join("")}
+        `).join("")}
+      </div>
     </div>
   `;
 }
 
 function renderDoubleSidedPreview() {
-  if (!allCards.length) {
-    previewEl.innerHTML = "No flashcards found.";
-    return;
-  }
-
-  const fronts = allCards.map(card => `
-    <div class="print-grid-card">${escapeHtml(card.front || card.term || "")}</div>
-  `).join("");
-
-  const backs = allCards.map(card => `
-    <div class="print-grid-card">${escapeHtml(card.back || card.def || "")}</div>
-  `).join("");
+  const printCards = getPrintCards();
 
   previewEl.innerHTML = `
     <div class="print-page">
       <div class="print-page-title">Page 1 — Terms</div>
-      <div class="print-grid">${fronts}</div>
+      <div class="print-grid">
+        ${printCards.map(card => `
+          <div class="print-grid-card ${card.empty ? "empty" : ""}">
+            ${card.empty ? "&nbsp;" : escapeHtml(card.front || card.term || "")}
+          </div>
+        `).join("")}
+      </div>
     </div>
     <div class="print-page">
       <div class="print-page-title">Page 2 — Definitions</div>
-      <div class="print-grid">${backs}</div>
+      <div class="print-grid">
+        ${printCards.map(card => `
+          <div class="print-grid-card ${card.empty ? "empty" : ""}">
+            ${card.empty ? "&nbsp;" : escapeHtml(card.back || card.def || "")}
+          </div>
+        `).join("")}
+      </div>
     </div>
   `;
 }
@@ -700,6 +729,14 @@ async function loadCards() {
 
     allCards = Array.isArray(data) ? data : [];
 
+    cards = allCards.map(c => ({ ...c, status: null }));
+    testCards = allCards.map(c => ({ ...c, status: null }));
+    current = 0;
+    testCurrent = 0;
+
+    document.getElementById("reviewIndicator").style.display = "none";
+    testReviewIndicator.style.display = "none";
+
     if (!allCards.length) {
       frontEl.innerText = "No flashcards found.";
       termPromptEl.textContent = "";
@@ -709,14 +746,6 @@ async function loadCards() {
       renderPrintPreview();
       return;
     }
-
-    cards = allCards.map(c => ({ ...c, status: null }));
-    testCards = allCards.map(c => ({ ...c, status: null }));
-    current = 0;
-    testCurrent = 0;
-
-    document.getElementById("reviewIndicator").style.display = "none";
-    testReviewIndicator.style.display = "none";
 
     showCard();
     showTestCard();
