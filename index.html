@@ -550,7 +550,7 @@ function openTab(tabId, btn) {
   btn.classList.add("active");
 }
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbzKdLi8UjfmM9yuxBFG4ZvdVJZYiMcHVPa-81TzPiK4rwKLPQVYG9wqRAQJjXJiEaBQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzoUaZR880q5Calmvf9fQ4_z2XRgVi2rGhuNa3G82MYmOVCpyw1xh5qgyY3J3aNl0hH/exec";
 const params = new URLSearchParams(window.location.search);
 const setId = params.get("set");
 
@@ -793,7 +793,7 @@ async function saveExplanation() {
     const result = await res.json();
 
     if (result.success) {
-      submitStatus.innerText = "Explanation saved successfully.";
+      submitStatus.innerText = result.aiGradingResponse || "Explanation saved successfully.";
     } else {
       submitStatus.innerText = result.error || "Could not save explanation.";
     }
