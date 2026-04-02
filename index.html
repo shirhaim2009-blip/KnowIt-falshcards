@@ -152,7 +152,6 @@ body{
   justify-content:center;
   align-items:center;
   text-align:center;
-  font-size:28px;
   padding:30px;
   box-sizing:border-box;
   backface-visibility:hidden;
@@ -162,6 +161,12 @@ body{
   line-height:1.3;
   min-width:0;
   overflow:hidden;
+}
+
+.flashcard-front > span,
+.flashcard-back > span{
+  display:block;
+  width:100%;
 }
 
 .flashcard-back{
@@ -325,8 +330,7 @@ textarea.incorrect{
   justify-content:center;
   text-align:center;
   padding:10mm;
-  font-size:18px;
-  line-height:1.3;
+  line-height:1.25;
   background:white;
   min-height:0;
   box-sizing:border-box;
@@ -339,6 +343,19 @@ textarea.incorrect{
 .print-grid-card.empty{
   color:transparent;
   background:#fff;
+}
+
+.print-grid-card-text{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-height:1.25;
 }
 
 .print-selected{
@@ -472,8 +489,8 @@ textarea.incorrect{
 
       <div class="flashcard" id="flashcard">
         <div class="flashcard-inner">
-          <div class="flashcard-front" id="front">Loading...</div>
-          <div class="flashcard-back" id="back"></div>
+          <div class="flashcard-front" id="front"><span id="frontText">Loading...</span></div>
+          <div class="flashcard-back" id="back"><span id="backText"></span></div>
         </div>
       </div>
 
@@ -571,6 +588,8 @@ let printMode = "double";
 
 const frontEl = document.getElementById("front");
 const backEl = document.getElementById("back");
+const frontTextEl = document.getElementById("frontText");
+const backTextEl = document.getElementById("backText");
 const flashcard = document.getElementById("flashcard");
 const progressEl = document.getElementById("progress");
 const scoreSummaryEl = document.getElementById("scoreSummary");
@@ -586,6 +605,8 @@ const previewEl = document.getElementById("preview");
 const singleBtn = document.getElementById("single");
 const doubleBtn = document.getElementById("double");
 const saveBtn = document.getElementById("save");
+
+let printResizeObserver = null;
 
 function updateModeButton() {
   toggleModeBtn.innerText = showBackFirst
@@ -646,30 +667,60 @@ function getPrintCards() {
   return padded;
 }
 
-function fitTextToBox(el, maxFont = 28, minFont = 10) {
-  if (!el || el.classList.contains("empty")) return;
-  el.style.fontSize = maxFont + "px";
-  while ((el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) && maxFont > minFont) {
-    maxFont -= 1;
-    el.style.fontSize = maxFont + "px";
+function fitElementText(container, textEl, maxFont, minFont) {
+  if (!container || !textEl) return;
+  let size = maxFont;
+  textEl.style.fontSize = size + "px";
+
+  while (
+    (textEl.scrollHeight > container.clientHeight ||
+     textEl.scrollWidth > container.clientWidth) &&
+    size > minFont
+  ) {
+    size -= 1;
+    textEl.style.fontSize = size + "px";
   }
+}
+
+function fitStudyCardText() {
+  fitElementText(frontEl, frontTextEl, 28, 14);
+  fitElementText(backEl, backTextEl, 28, 14);
+}
+
+function fitPrintCard(card) {
+  if (!card || card.classList.contains("empty")) return;
+  const textEl = card.querySelector(".print-grid-card-text");
+  if (!textEl) return;
+  fitElementText(card, textEl, 18, 8);
 }
 
 function fitAllPrintCards() {
   document.querySelectorAll(".print-grid-card:not(.empty)").forEach(card => {
-    fitTextToBox(card, 18, 9);
+    fitPrintCard(card);
   });
 }
 
-function fitStudyCardText() {
-  [frontEl, backEl].forEach(el => {
-    if (!el) return;
-    let size = 28;
-    el.style.fontSize = size + "px";
-    while ((el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) && size > 14) {
-      size -= 1;
-      el.style.fontSize = size + "px";
-    }
+function schedulePrintFit() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      fitAllPrintCards();
+      setTimeout(fitAllPrintCards, 60);
+      setTimeout(fitAllPrintCards, 180);
+    });
+  });
+}
+
+function observePrintCards() {
+  if (printResizeObserver) {
+    printResizeObserver.disconnect();
+  }
+
+  printResizeObserver = new ResizeObserver(() => {
+    schedulePrintFit();
+  });
+
+  document.querySelectorAll(".print-grid-card:not(.empty)").forEach(card => {
+    printResizeObserver.observe(card);
   });
 }
 
@@ -680,7 +731,9 @@ function buildPrintPage(cards, sideKey) {
         <div class="print-grid">
           ${cards.map(card => `
             <div class="print-grid-card ${card.empty ? "empty" : ""}">
-              ${card.empty ? "&nbsp;" : escapeHtml(card[sideKey] || "")}
+              <div class="print-grid-card-text">
+                ${card.empty ? "&nbsp;" : escapeHtml(card[sideKey] || "")}
+              </div>
             </div>
           `).join("")}
         </div>
@@ -700,7 +753,8 @@ function renderSingleSidedPreview() {
     buildPrintPage(printCards, "front") +
     buildPrintPage(printCards, "back");
 
-  requestAnimationFrame(fitAllPrintCards);
+  observePrintCards();
+  schedulePrintFit();
 }
 
 function renderDoubleSidedPreview() {
@@ -714,7 +768,8 @@ function renderDoubleSidedPreview() {
     buildPrintPage(printCards, "front") +
     buildPrintPage(printCards, "back");
 
-  requestAnimationFrame(fitAllPrintCards);
+  observePrintCards();
+  schedulePrintFit();
 }
 
 function renderPrintPreview() {
@@ -727,7 +782,7 @@ function renderPrintPreview() {
 }
 
 async function loadCards() {
-  frontEl.innerText = "Loading...";
+  frontTextEl.innerText = "Loading...";
   try {
     const url = setId
       ? `${scriptURL}?${new URLSearchParams({ set: setId }).toString()}`
@@ -747,7 +802,8 @@ async function loadCards() {
     testReviewIndicator.style.display = "none";
 
     if (!allCards.length) {
-      frontEl.innerText = "No flashcards found.";
+      frontTextEl.innerText = "No flashcards found.";
+      backTextEl.innerText = "";
       termPromptEl.textContent = "";
       progressEl.innerText = "";
       scoreSummaryEl.innerText = "";
@@ -762,7 +818,8 @@ async function loadCards() {
     renderPrintPreview();
   } catch (err) {
     console.error(err);
-    frontEl.innerText = "Error loading flashcards.";
+    frontTextEl.innerText = "Error loading flashcards.";
+    backTextEl.innerText = "";
     termPromptEl.textContent = "";
     progressEl.innerText = "";
     scoreSummaryEl.innerText = "";
@@ -778,16 +835,19 @@ function showCard() {
   flashcard.classList.remove("flipped", "correct", "incorrect");
 
   if (showBackFirst) {
-    frontEl.innerText = c.back || c.def || "";
-    backEl.innerText = c.front || c.term || "";
+    frontTextEl.innerText = c.back || c.def || "";
+    backTextEl.innerText = c.front || c.term || "";
   } else {
-    frontEl.innerText = c.front || c.term || "";
-    backEl.innerText = c.back || c.def || "";
+    frontTextEl.innerText = c.front || c.term || "";
+    backTextEl.innerText = c.back || c.def || "";
   }
 
   progressEl.innerText = `Card ${current + 1} / ${cards.length}`;
   updateScoreSummary();
-  requestAnimationFrame(fitStudyCardText);
+
+  requestAnimationFrame(() => {
+    fitStudyCardText();
+  });
 }
 
 function showTestCard() {
@@ -961,17 +1021,22 @@ doubleBtn.onclick = () => {
 
 saveBtn.onclick = () => {
   renderPrintPreview();
+  schedulePrintFit();
   setTimeout(() => {
-    fitAllPrintCards();
+    schedulePrintFit();
     window.print();
-  }, 50);
+  }, 250);
 };
 
 submitBtn.onclick = saveExplanation;
 
 window.addEventListener("resize", () => {
   fitStudyCardText();
-  fitAllPrintCards();
+  schedulePrintFit();
+});
+
+window.addEventListener("beforeprint", () => {
+  schedulePrintFit();
 });
 
 updateModeButton();
