@@ -550,7 +550,7 @@ function openTab(tabId, btn) {
   btn.classList.add("active");
 }
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbx7HS3vsDh72bx5GpvkXuOgU4_LhGGvewOjIg4DlcoNV4Y_bzZhT638R9Q411II1s8/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzL87VOu8VSSq-Sjnti_YnDNmOU5nle2hj7kXAwQF_w52r5FMhBjnkzCIKKbcsGQCoP/exec";
 const params = new URLSearchParams(window.location.search);
 const setId = params.get("set");
 
@@ -761,7 +761,46 @@ function showTestCard() {
 
 async function saveExplanation() {
   if (!testCards.length) return;
-  submitStatus.innerText = "Submit functionality is still not connected in this version.";
+
+  const currentCard = testCards[testCurrent];
+  const explanation = explanationInput.value;
+
+  if (!explanation || !explanation.trim()) {
+    submitStatus.innerText = "Please write an explanation before submitting.";
+    return;
+  }
+
+  if (!currentCard.id) {
+    submitStatus.innerText = "Missing card ID. Update doGet to return id for each card.";
+    return;
+  }
+
+  submitStatus.innerText = "Saving...";
+
+  try {
+    const body = new URLSearchParams({
+      action: "saveExplanation",
+      Id: String(currentCard.id),
+      Term: String(currentCard.front || currentCard.term || ""),
+      Explanation: explanation
+    });
+
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      body: body
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      submitStatus.innerText = "Explanation saved successfully.";
+    } else {
+      submitStatus.innerText = result.error || "Could not save explanation.";
+    }
+  } catch (err) {
+    console.error(err);
+    submitStatus.innerText = "Error saving explanation.";
+  }
 }
 
 flashcard.onclick = () => flashcard.classList.toggle("flipped");
