@@ -245,6 +245,16 @@ textarea.incorrect{
   background:#764ba2;
 }
 
+#clearBtn{
+  margin-top:14px;
+  width:100%;
+  background:#9aa3b2;
+}
+
+#clearBtn:hover{
+  background:#7f8897;
+}
+
 .preview{
   min-height:300px;
   border:1px dashed #ccc;
@@ -522,6 +532,7 @@ textarea.incorrect{
       </div>
 
       <button id="submitBtn">Submit</button>
+      <button id="clearBtn">Clear</button>
 
       <div id="submitStatus" style="margin-top:10px;background:#f4f4f4;padding:12px;border-radius:10px;">
         Response will appear here.
@@ -587,6 +598,7 @@ const toggleModeBtn = document.getElementById("toggleMode");
 const termPromptEl = document.getElementById("termPrompt");
 const explanationInput = document.getElementById("explanationInput");
 const submitBtn = document.getElementById("submitBtn");
+const clearBtn = document.getElementById("clearBtn");
 const submitStatus = document.getElementById("submitStatus");
 const testScoreSummaryEl = document.getElementById("testScoreSummary");
 const testReviewIndicator = document.getElementById("testReviewIndicator");
@@ -931,6 +943,12 @@ document.getElementById("resetTest").onclick = () => {
   testReviewIndicator.style.display = "none";
   clearTestInputState();
   showTestCard();
+};
+
+clearBtn.onclick = () => {
+  explanationInput.value = "";
+  submitStatus.innerText = "Text cleared.";
+  setTextareaStatus(null);
 };
 
 singleBtn.onclick = () => {
