@@ -363,6 +363,77 @@ textarea.incorrect{
   color:#2f3f6b;
 }
 
+/* ONE-SIDED PAIRED LAYOUT */
+.print-pairs-page{
+  background:white;
+  width:100%;
+  max-width:794px;
+  margin:0 auto 18px auto;
+}
+
+.print-pairs-area{
+  width:100%;
+  aspect-ratio:210 / 297;
+  box-sizing:border-box;
+  padding:12mm;
+  background:white;
+}
+
+.print-pairs{
+  width:100%;
+  height:100%;
+  display:grid;
+  grid-template-rows:repeat(4, 1fr);
+  gap:0;
+  box-sizing:border-box;
+}
+
+.print-pair-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:stretch;
+  min-height:0;
+  border-bottom:2px solid #666;
+  box-sizing:border-box;
+}
+
+.print-pair-row:last-child{
+  border-bottom:none;
+}
+
+.print-pair-card{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:10mm;
+  background:white;
+  min-height:0;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+
+.print-pair-card.left{
+  border-right:2px dotted #888;
+}
+
+.print-pair-card-text{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-height:1.25;
+}
+
+.print-pair-card.empty{
+  color:transparent;
+}
+
 @media print{
   @page{
     size:A4 portrait;
@@ -425,7 +496,8 @@ textarea.incorrect{
     width:210mm;
   }
 
-  .print-page{
+  .print-page,
+  .print-pairs-page{
     width:210mm;
     height:297mm;
     margin:0 !important;
@@ -435,12 +507,14 @@ textarea.incorrect{
     box-sizing:border-box;
   }
 
-  .print-page:last-child{
+  .print-page:last-child,
+  .print-pairs-page:last-child{
     page-break-after:auto;
     break-after:auto;
   }
 
-  .print-area{
+  .print-area,
+  .print-pairs-area{
     width:210mm;
     height:297mm;
     margin:0;
@@ -461,6 +535,26 @@ textarea.incorrect{
     box-shadow:none !important;
     page-break-inside:avoid;
     break-inside:avoid;
+  }
+
+  .print-pairs{
+    width:186mm;
+    height:273mm;
+    margin:0 auto;
+  }
+
+  .print-pair-row{
+    page-break-inside:avoid;
+    break-inside:avoid;
+    border-bottom:2px solid #666;
+  }
+
+  .print-pair-row:last-child{
+    border-bottom:none;
+  }
+
+  .print-pair-card.left{
+    border-right:2px dotted #888;
   }
 }
 </style>
@@ -653,18 +747,11 @@ function updatePrintButtons() {
 }
 
 function getPrintCards() {
-  const fixedCount = 8;
-  const padded = allCards.slice(0, fixedCount);
-
-  while (padded.length < fixedCount) {
-    padded.push({
-      front: "",
-      back: "",
-      empty: true
-    });
-  }
-
-  return padded;
+  return allCards.map(card => ({
+    ...card,
+    front: card.front || card.term || "",
+    back: card.back || card.def || ""
+  }));
 }
 
 function fitElementText(container, textEl, maxFont, minFont) {
@@ -689,13 +776,13 @@ function fitStudyCardText() {
 
 function fitPrintCard(card) {
   if (!card || card.classList.contains("empty")) return;
-  const textEl = card.querySelector(".print-grid-card-text");
+  const textEl = card.querySelector(".print-grid-card-text, .print-pair-card-text");
   if (!textEl) return;
   fitElementText(card, textEl, 18, 8);
 }
 
 function fitAllPrintCards() {
-  document.querySelectorAll(".print-grid-card:not(.empty)").forEach(card => {
+  document.querySelectorAll(".print-grid-card:not(.empty), .print-pair-card:not(.empty)").forEach(card => {
     fitPrintCard(card);
   });
 }
@@ -719,17 +806,22 @@ function observePrintCards() {
     schedulePrintFit();
   });
 
-  document.querySelectorAll(".print-grid-card:not(.empty)").forEach(card => {
+  document.querySelectorAll(".print-grid-card:not(.empty), .print-pair-card:not(.empty)").forEach(card => {
     printResizeObserver.observe(card);
   });
 }
 
 function buildPrintPage(cards, sideKey) {
+  const pageCards = cards.slice(0, 8);
+  while (pageCards.length < 8) {
+    pageCards.push({ front: "", back: "", empty: true });
+  }
+
   return `
     <div class="print-page">
       <div class="print-area">
         <div class="print-grid">
-          ${cards.map(card => `
+          ${pageCards.map(card => `
             <div class="print-grid-card ${card.empty ? "empty" : ""}">
               <div class="print-grid-card-text">
                 ${card.empty ? "&nbsp;" : escapeHtml(card[sideKey] || "")}
@@ -742,32 +834,60 @@ function buildPrintPage(cards, sideKey) {
   `;
 }
 
+function buildOneSidedPairsPage(cards) {
+  const rows = cards.slice(0, 4);
+  while (rows.length < 4) {
+    rows.push({ front: "", back: "", empty: true });
+  }
+
+  return `
+    <div class="print-pairs-page">
+      <div class="print-pairs-area">
+        <div class="print-pairs">
+          ${rows.map(card => `
+            <div class="print-pair-row">
+              <div class="print-pair-card left ${card.empty ? "empty" : ""}">
+                <div class="print-pair-card-text">
+                  ${card.empty ? "&nbsp;" : escapeHtml(card.front || "")}
+                </div>
+              </div>
+              <div class="print-pair-card right ${card.empty ? "empty" : ""}">
+                <div class="print-pair-card-text">
+                  ${card.empty ? "&nbsp;" : escapeHtml(card.back || "")}
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderSingleSidedPreview() {
-  const printCards = getPrintCards().map(card => ({
-    ...card,
-    front: card.front || card.term || "",
-    back: card.back || card.def || ""
-  }));
+  const printCards = getPrintCards();
+  let html = "";
 
-  previewEl.innerHTML =
-    buildPrintPage(printCards, "front") +
-    buildPrintPage(printCards, "back");
+  for (let i = 0; i < printCards.length || i === 0; i += 4) {
+    html += buildOneSidedPairsPage(printCards.slice(i, i + 4));
+  }
 
+  previewEl.innerHTML = html;
   observePrintCards();
   schedulePrintFit();
 }
 
 function renderDoubleSidedPreview() {
-  const printCards = getPrintCards().map(card => ({
-    ...card,
-    front: card.front || card.term || "",
-    back: card.back || card.def || ""
-  }));
+  const printCards = getPrintCards();
+  let html = "";
 
-  previewEl.innerHTML =
-    buildPrintPage(printCards, "front") +
-    buildPrintPage(printCards, "back");
+  for (let i = 0; i < printCards.length || i === 0; i += 8) {
+    const chunk = printCards.slice(i, i + 8);
+    html += buildPrintPage(chunk, "front");
+    html += buildPrintPage(chunk, "back");
+  }
 
+  previewEl.innerHTML = html;
   observePrintCards();
   schedulePrintFit();
 }
