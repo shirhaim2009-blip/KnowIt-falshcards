@@ -363,7 +363,6 @@ textarea.incorrect{
   color:#2f3f6b;
 }
 
-/* ONE-SIDED PAIRED LAYOUT */
 .print-pairs-page{
   background:white;
   width:100%;
@@ -811,20 +810,20 @@ function observePrintCards() {
   });
 }
 
-function buildPrintPage(cards, sideKey) {
-  const pageCards = cards.slice(0, 8);
-  while (pageCards.length < 8) {
-    pageCards.push({ front: "", back: "", empty: true });
+function buildPrintPageFromItems(items) {
+  const pageItems = items.slice(0, 8);
+  while (pageItems.length < 8) {
+    pageItems.push({ text: "", empty: true });
   }
 
   return `
     <div class="print-page">
       <div class="print-area">
         <div class="print-grid">
-          ${pageCards.map(card => `
-            <div class="print-grid-card ${card.empty ? "empty" : ""}">
+          ${pageItems.map(item => `
+            <div class="print-grid-card ${item.empty ? "empty" : ""}">
               <div class="print-grid-card-text">
-                ${card.empty ? "&nbsp;" : escapeHtml(card[sideKey] || "")}
+                ${item.empty ? "&nbsp;" : escapeHtml(item.text || "")}
               </div>
             </div>
           `).join("")}
@@ -832,6 +831,29 @@ function buildPrintPage(cards, sideKey) {
       </div>
     </div>
   `;
+}
+
+function buildDoubleSidedBackItems(cardsChunk) {
+  const items = [];
+
+  for (let i = 0; i < cardsChunk.length; i += 2) {
+    const leftCard = cardsChunk[i];
+    const rightCard = cardsChunk[i + 1];
+
+    if (rightCard) {
+      items.push({ text: rightCard.back || "" });
+    } else {
+      items.push({ text: "", empty: true });
+    }
+
+    if (leftCard) {
+      items.push({ text: leftCard.back || "" });
+    } else {
+      items.push({ text: "", empty: true });
+    }
+  }
+
+  return items;
 }
 
 function buildOneSidedPairsPage(cards) {
@@ -883,22 +905,20 @@ function renderDoubleSidedPreview() {
 
   for (let i = 0; i < printCards.length || i === 0; i += 8) {
     const chunk = printCards.slice(i, i + 8);
-    html += buildPrintPage(chunk, "front");
-    html += buildPrintPage(chunk, "back");
+
+    const frontItems = chunk.map(card => ({
+      text: card.front || ""
+    }));
+
+    const backItems = buildDoubleSidedBackItems(chunk);
+
+    html += buildPrintPageFromItems(frontItems);
+    html += buildPrintPageFromItems(backItems);
   }
 
   previewEl.innerHTML = html;
   observePrintCards();
   schedulePrintFit();
-}
-
-function renderPrintPreview() {
-  updatePrintButtons();
-  if (printMode === "single") {
-    renderSingleSidedPreview();
-  } else {
-    renderDoubleSidedPreview();
-  }
 }
 
 async function loadCards() {
@@ -1019,6 +1039,15 @@ async function saveExplanation() {
   } catch (err) {
     console.error(err);
     submitStatus.innerText = "Error saving explanation.";
+  }
+}
+
+function renderPrintPreview() {
+  updatePrintButtons();
+  if (printMode === "single") {
+    renderSingleSidedPreview();
+  } else {
+    renderDoubleSidedPreview();
   }
 }
 
