@@ -602,13 +602,14 @@ textarea.incorrect{
 <button class="menu-toggle" id="menuToggle" title="Open Navigation Menu">☰</button>
 
 <div class="sidebar" id="sidebar">
-  <button class="tab-btn active" onclick="openTab('study', this)">Flashcards</button>
-  <button class="tab-btn" onclick="openTab('test', this)">Test Your Knowledge</button>
-  <button class="tab-btn" onclick="openTab('print', this)">Print</button>
+  <button class="tab-btn active" id="tabBtnStudy" onclick="openTab('study', this)">Flashcards</button>
+  <button class="tab-btn" id="tabBtnTest" onclick="openTab('test', this)">Test Your Knowledge</button>
+  <button class="tab-btn" id="tabBtnPrint" onclick="openTab('print', this)">Print</button>
 </div>
 
 <div class="main" id="main">
 
+  <!-- TAB 1: Flashcards -->
   <div id="study" class="tab active">
     <div class="container">
       <div class="buttonRow" style="justify-content:flex-end;">
@@ -638,6 +639,7 @@ textarea.incorrect{
     </div>
   </div>
 
+  <!-- TAB 2: Test Your Knowledge -->
   <div id="test" class="tab">
     <div class="container">
       <div id="knowledgeTitle">Test Your Knowledge</div>
@@ -650,7 +652,7 @@ textarea.incorrect{
       <div id="termPrompt"></div>
       <textarea id="explanationInput" placeholder="Write your explanation here..."></textarea>
 
-      <div class="buttonRow" style="margin-top:14px;">
+      <div class="buttonRow" id="testButtonControls" style="margin-top:14px;">
         <button id="prevTerm">← Previous Term</button>
         <button id="incorrectTest">✖ Incorrect</button>
         <button id="correctTest">✔ Correct</button>
@@ -669,9 +671,10 @@ textarea.incorrect{
     </div>
   </div>
 
+  <!-- TAB 3: Print -->
   <div id="print" class="tab">
     <div class="container">
-      <div class="buttonRow">
+      <div class="buttonRow" id="printButtonControls">
         <button id="double">⇄ Double Sided</button>
         <button id="single">☰ One Sided</button>
         <button id="save">Print</button>
@@ -701,13 +704,18 @@ function openTab(tabId, btn) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.getElementById(tabId).classList.add("active");
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
+  if (btn) btn.classList.add("active");
 }
 
-/* ========================
-   GUIDED ONBOARDING TOUR
-======================== */
+/* ==============================================
+   ALL-PAGES GUIDED ONBOARDING TOUR (DRIVER.JS)
+============================================== */
 const driver = window.driver.js.driver;
+
+function switchTabProgrammatically(tabId, btnId) {
+  const btn = document.getElementById(btnId);
+  openTab(tabId, btn);
+}
 
 const tourGuide = driver({
   showProgress: true,
@@ -715,23 +723,38 @@ const tourGuide = driver({
   nextBtnText: 'Next →',
   prevBtnText: '← Back',
   doneBtnText: 'Start Studying!',
+  onDestroyStarted: () => {
+    // When tour finishes or is closed, bring user back to Flashcards tab
+    switchTabProgrammatically('study', 'tabBtnStudy');
+    sidebar.classList.remove("open");
+    main.classList.remove("shifted");
+    menuToggle.classList.remove("active");
+    tourGuide.destroy();
+  },
   steps: [
+    // --- PAGE 1: Flashcards ---
     {
       element: '#menuToggle',
       popover: {
-        title: 'Modes & Tools',
-        description: 'Click here to switch between Flashcards, AI Knowledge Testing, and Print-ready study sheets!',
+        title: 'Welcome to KnowIt Flashcards!',
+        description: 'Open this sidebar menu anytime to switch between Flashcards, Knowledge Testing, and Print mode.',
         side: 'bottom',
         align: 'start'
+      },
+      onHighlightStarted: () => {
+        switchTabProgrammatically('study', 'tabBtnStudy');
       }
     },
     {
       element: '#toggleMode',
       popover: {
         title: 'Flip Study Direction',
-        description: 'Toggle whether you want to see the Term first or the Definition first.',
+        description: 'Choose whether you want to see the Term first or the Definition first.',
         side: 'bottom',
         align: 'end'
+      },
+      onHighlightStarted: () => {
+        switchTabProgrammatically('study', 'tabBtnStudy');
       }
     },
     {
@@ -741,30 +764,67 @@ const tourGuide = driver({
         description: 'Click anywhere on this card (or tap it) to flip between front and back.',
         side: 'top',
         align: 'center'
+      },
+      onHighlightStarted: () => {
+        switchTabProgrammatically('study', 'tabBtnStudy');
       }
     },
     {
       element: '#studyButtonControls',
       popover: {
-        title: 'Track Your Mastery',
-        description: 'Navigate with Next/Previous and mark cards "Correct" or "Incorrect" to track your real-time score.',
+        title: 'Track Your Score & Review Wrong',
+        description: 'Mark cards Correct or Incorrect to track mastery. Use "Review Wrong" to only practice cards you missed!',
         side: 'top',
         align: 'center'
+      },
+      onHighlightStarted: () => {
+        switchTabProgrammatically('study', 'tabBtnStudy');
+      }
+    },
+
+    // --- PAGE 2: Test Your Knowledge ---
+    {
+      element: '#explanationInput',
+      popover: {
+        title: 'Page 2: Test Your Knowledge',
+        description: 'Active recall! Type an explanation of the shown term in your own words here.',
+        side: 'top',
+        align: 'center'
+      },
+      onHighlightStarted: () => {
+        switchTabProgrammatically('test', 'tabBtnTest');
       }
     },
     {
-      element: '#review',
+      element: '#submitBtn',
       popover: {
-        title: 'Focus on Weak Spots',
-        description: 'Hit "Review Wrong" at any time to only drill the cards you missed until you get 100%!',
+        title: 'Submit for AI Feedback',
+        description: 'Click Submit to grade your explanation and get immediate feedback on how complete your answer is.',
         side: 'top',
         align: 'center'
+      },
+      onHighlightStarted: () => {
+        switchTabProgrammatically('test', 'tabBtnTest');
+      }
+    },
+
+    // --- PAGE 3: Print & Physical Cards ---
+    {
+      element: '#printButtonControls',
+      popover: {
+        title: 'Page 3: Printable Cutout Flashcards',
+        description: 'Need paper cards? Choose Double Sided or One Sided, then hit Print to generate cut-out study sheets!',
+        side: 'bottom',
+        align: 'center'
+      },
+      onHighlightStarted: () => {
+        switchTabProgrammatically('print', 'tabBtnPrint');
       }
     }
   ]
 });
 
-// Auto-run tour on first visit
+// Auto-run tour for first-time visitors
 function checkFirstTimeTour() {
   const hasSeen = localStorage.getItem('knowit_study_has_seen_tour');
   if (!hasSeen) {
@@ -775,11 +835,8 @@ function checkFirstTimeTour() {
   }
 }
 
-// Manual trigger from button
+// Click button to start tour manually anytime
 document.getElementById('startTourBtn').addEventListener('click', () => {
-  // Ensure we are on the study tab so highlights align properly
-  const studyTabBtn = document.querySelector('.sidebar .tab-btn');
-  if (studyTabBtn) openTab('study', studyTabBtn);
   tourGuide.drive();
 });
 
