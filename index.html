@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>Flashcards</title>
+
+<!-- Driver.js (Interactive Guided Tour) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
+<script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+
 <style>
 body{
   font-family:'Segoe UI',sans-serif;
@@ -11,6 +16,34 @@ body{
   display:flex;
   height:100vh;
   overflow:hidden;
+}
+
+/* Floating Tour Restart Button */
+.tour-trigger-btn{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:rgba(255, 255, 255, 0.9);
+  color:#5471c0;
+  border:1px solid rgba(255, 255, 255, 0.8);
+  border-radius:20px;
+  padding:8px 16px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  box-shadow:0 6px 15px rgba(0,0,0,0.15);
+  z-index:1100;
+  transition:all 0.2s ease;
+  backdrop-filter:blur(4px);
+}
+
+.tour-trigger-btn:hover{
+  background:#ffffff;
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.25);
 }
 
 .menu-toggle{
@@ -454,6 +487,7 @@ textarea.incorrect{
     font-family:'Segoe UI',sans-serif;
   }
 
+  .tour-trigger-btn,
   .menu-toggle,
   .sidebar,
   #study,
@@ -560,7 +594,12 @@ textarea.incorrect{
 </head>
 <body>
 
-<button class="menu-toggle" id="menuToggle">☰</button>
+<!-- Restart tour button -->
+<button type="button" class="tour-trigger-btn" id="startTourBtn" title="How to use flashcards?">
+  <span>💡</span> Take Tour
+</button>
+
+<button class="menu-toggle" id="menuToggle" title="Open Navigation Menu">☰</button>
 
 <div class="sidebar" id="sidebar">
   <button class="tab-btn active" onclick="openTab('study', this)">Flashcards</button>
@@ -587,7 +626,7 @@ textarea.incorrect{
         </div>
       </div>
 
-      <div class="buttonRow">
+      <div class="buttonRow" id="studyButtonControls">
         <button id="prev">← Previous</button>
         <button id="incorrect">✖ Incorrect</button>
         <button id="correct">✔ Correct</button>
@@ -664,6 +703,85 @@ function openTab(tabId, btn) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
+
+/* ========================
+   GUIDED ONBOARDING TOUR
+======================== */
+const driver = window.driver.js.driver;
+
+const tourGuide = driver({
+  showProgress: true,
+  animate: true,
+  nextBtnText: 'Next →',
+  prevBtnText: '← Back',
+  doneBtnText: 'Start Studying!',
+  steps: [
+    {
+      element: '#menuToggle',
+      popover: {
+        title: 'Modes & Tools',
+        description: 'Click here to switch between Flashcards, AI Knowledge Testing, and Print-ready study sheets!',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '#toggleMode',
+      popover: {
+        title: 'Flip Study Direction',
+        description: 'Toggle whether you want to see the Term first or the Definition first.',
+        side: 'bottom',
+        align: 'end'
+      }
+    },
+    {
+      element: '#flashcard',
+      popover: {
+        title: 'Interactive Flashcard',
+        description: 'Click anywhere on this card (or tap it) to flip between front and back.',
+        side: 'top',
+        align: 'center'
+      }
+    },
+    {
+      element: '#studyButtonControls',
+      popover: {
+        title: 'Track Your Mastery',
+        description: 'Navigate with Next/Previous and mark cards "Correct" or "Incorrect" to track your real-time score.',
+        side: 'top',
+        align: 'center'
+      }
+    },
+    {
+      element: '#review',
+      popover: {
+        title: 'Focus on Weak Spots',
+        description: 'Hit "Review Wrong" at any time to only drill the cards you missed until you get 100%!',
+        side: 'top',
+        align: 'center'
+      }
+    }
+  ]
+});
+
+// Auto-run tour on first visit
+function checkFirstTimeTour() {
+  const hasSeen = localStorage.getItem('knowit_study_has_seen_tour');
+  if (!hasSeen) {
+    setTimeout(() => {
+      tourGuide.drive();
+      localStorage.setItem('knowit_study_has_seen_tour', 'true');
+    }, 600);
+  }
+}
+
+// Manual trigger from button
+document.getElementById('startTourBtn').addEventListener('click', () => {
+  // Ensure we are on the study tab so highlights align properly
+  const studyTabBtn = document.querySelector('.sidebar .tab-btn');
+  if (studyTabBtn) openTab('study', studyTabBtn);
+  tourGuide.drive();
+});
 
 const scriptURL = "https://script.google.com/macros/s/AKfycbwr8lRVtHndqiIIvOf6C7F-NPwN7MYdGUZUBx3-0vn5soqEfnHYOi04lrtwQS48RE_Q/exec";
 const params = new URLSearchParams(window.location.search);
@@ -949,6 +1067,7 @@ async function loadCards() {
       scoreSummaryEl.innerText = "";
       testScoreSummaryEl.innerText = "";
       renderPrintPreview();
+      checkFirstTimeTour();
       return;
     }
 
@@ -956,6 +1075,7 @@ async function loadCards() {
     showTestCard();
     clearTestInputState();
     renderPrintPreview();
+    checkFirstTimeTour();
   } catch (err) {
     console.error(err);
     frontTextEl.innerText = "Error loading flashcards.";
@@ -965,6 +1085,7 @@ async function loadCards() {
     scoreSummaryEl.innerText = "";
     testScoreSummaryEl.innerText = "";
     previewEl.innerHTML = "Error loading print preview.";
+    checkFirstTimeTour();
   }
 }
 
